@@ -21,15 +21,15 @@ npm install
 สร้างไฟล์ชื่อ `.env.local` ที่ **root ของโปรเจกต์** แล้วใส่เนื้อหาดังนี้:
 
 ```env
+# คัดลอกเนื้อหาจาก .env.example มาใส่ใน .env.local แล้วปรับแก้ตามต้องการ
+
 # ===== Database Connection =====
-# ต้องตรงกับค่าใน docker-compose-mysql-phpmyadmin.yaml
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=root
 DB_NAME=smartpersona_db
 
 # ===== JWT Secret =====
-# ใช้สำหรับเข้ารหัส Token — เปลี่ยนเป็นค่าสุ่มที่ยาวและซับซ้อนในงานจริง
 JWT_SECRET=your-secret-key-here
 ```
 
