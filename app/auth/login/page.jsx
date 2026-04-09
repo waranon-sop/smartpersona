@@ -43,7 +43,7 @@ function LoginContent() {
         if (role === "Admin") {
           router.push("/admin");
         } else {
-          router.push("/create/dashboarduser");
+          router.push("/create/dashboard");
         }
       })
       .catch((err) => {

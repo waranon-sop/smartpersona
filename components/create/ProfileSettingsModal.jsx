@@ -111,6 +111,23 @@ export default function ProfileSettingsModal({ isOpen, onClose, onProfileUpdate 
     }
   };
 
+  const handleDeleteAccount = async () => {
+    const isConfirmed = window.confirm(
+      "เขตอันตราย: คุณแน่ใจหรือไม่ว่าต้องการลบบัญชี ข้อมูลและเรซูเม่ทั้งหมดจะถูกลบอย่างถาวรและกู้คืนไม่ได้"
+    );
+    if (!isConfirmed) return;
+
+    setIsLoading(true);
+    try {
+      await axios.delete("/api/users/profile");
+      // Redirect to login page upon successful deletion
+      window.location.href = "/auth/login?deleted=1";
+    } catch (err) {
+      parseMessage(err.response?.data?.message || "เกิดข้อผิดพลาดในการลบบัญชี", "error");
+      setIsLoading(false);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -300,6 +317,21 @@ export default function ProfileSettingsModal({ isOpen, onClose, onProfileUpdate 
                     </button>
                   </div>
                 </form>
+
+                {/* Danger Zone */}
+                <div className="mt-12 pt-8 border-t border-red-100">
+                  <h4 className="text-lg font-bold text-red-600 mb-2">เขตอันตราย (Danger Zone)</h4>
+                  <p className="text-sm text-gray-600 mb-4">
+                    การลบบัญชีจะเป็นการลบข้อมูลทั้งหมดรวมถึงเรซูเม่ที่คุณสร้างไว้ การกระทำนี้ไม่สามารถย้อนกลับได้
+                  </p>
+                  <button 
+                    onClick={handleDeleteAccount}
+                    disabled={isLoading}
+                    className="bg-white border-2 border-red-500 text-red-600 hover:bg-red-50 disabled:opacity-50 font-bold py-2.5 px-6 rounded-xl transition-colors shadow-sm"
+                  >
+                    ลบบัญชีของฉัน
+                  </button>
+                </div>
               </div>
             )}
             

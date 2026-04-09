@@ -1,32 +1,21 @@
 import { NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
 import { query } from "@/lib/db";
 import { v4 as uuidv4 } from "uuid";
-
-// ฟังก์ชันดึง user_id จาก JWT cookie
-function getUserIdFromRequest(request) {
-  const token = request.cookies.get("token")?.value;
-  if (!token) return null;
-  try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
-    return payload.id;
-  } catch {
-    return null;
-  }
-}
+import { getCurrentUser } from "@/lib/session";
 
 // POST /api/resume/save — บันทึก resume ใหม่ หรืออัปเดตถ้ามี resume_id แล้ว
 export async function POST(request) {
-  const userId = getUserIdFromRequest(request);
-  if (!userId) {
+  const user = await getCurrentUser();
+  if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
+  const userId = user.id;
 
   try {
     const body = await request.json();
     const { resumeId, data } = body; // data is the context object
 
-    const { config, personal, education, experience, summary, skills } = data;
+    const { config, personal, educations, experiences, summary, skills, languages, certifications, projects } = data;
     const template = config?.template || "classic";
     const title = personal?.firstName
       ? `${personal.firstName} ${personal.lastName || ""}`.trim() + " Resume"
@@ -41,15 +30,18 @@ export async function POST(request) {
 
       await query(
         `UPDATE resume_content 
-         SET config = ?, personal = ?, education = ?, experience = ?, summary = ?, skills = ?
+         SET config = ?, personal = ?, education = ?, experience = ?, summary = ?, skills = ?, languages = ?, certifications = ?, projects = ?
          WHERE resume_id = ?`,
         [
           JSON.stringify(config),
           JSON.stringify(personal),
-          JSON.stringify(education),
-          JSON.stringify(experience),
+          JSON.stringify(educations),
+          JSON.stringify(experiences),
           JSON.stringify(summary),
           JSON.stringify(skills),
+          JSON.stringify(languages || []),
+          JSON.stringify(certifications || []),
+          JSON.stringify(projects || []),
           resumeId,
         ]
       );
@@ -65,16 +57,19 @@ export async function POST(request) {
       );
 
       await query(
-        `INSERT INTO resume_content (resume_id, config, personal, education, experience, summary, skills)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO resume_content (resume_id, config, personal, education, experience, summary, skills, languages, certifications, projects)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           newId,
           JSON.stringify(config),
           JSON.stringify(personal),
-          JSON.stringify(education),
-          JSON.stringify(experience),
+          JSON.stringify(educations),
+          JSON.stringify(experiences),
           JSON.stringify(summary),
           JSON.stringify(skills),
+          JSON.stringify(languages || []),
+          JSON.stringify(certifications || []),
+          JSON.stringify(projects || []),
         ]
       );
 

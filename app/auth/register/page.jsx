@@ -4,6 +4,7 @@ import { useState } from "react";
 import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function RegisterPage() {
   const [username, setUsername] = useState("");
@@ -46,7 +47,7 @@ export default function RegisterPage() {
     axios
       .post("/api/users/register", { username, email, password })
       .then(() => {
-        alert("Registration successful!");
+        toast.success("Registration successful!");
         router.push("/auth/login");
       })
       .catch((err) => {

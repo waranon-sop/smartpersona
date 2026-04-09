@@ -18,7 +18,8 @@ export async function GET(request) {
 
     const sql = `
       SELECT r.id, r.user_id, r.title, r.template, 
-             c.config, c.personal, c.education, c.experience, c.summary, c.skills
+             c.config, c.personal, c.education, c.experience, c.summary, c.skills,
+             c.languages, c.certifications, c.projects
       FROM resumes r
       LEFT JOIN resume_content c ON r.id = c.resume_id
       WHERE r.id = ? AND r.user_id = ?
@@ -31,14 +32,28 @@ export async function GET(request) {
 
     const row = results[0];
     
-    // Parse JSON strings to objects
+    // Parse JSON strings — DB stores "education"/"experience" columns (singular)
+    // but the frontend ResumeContext uses "educations"/"experiences" (plural arrays)
+    const parseField = (raw, fallback) =>
+      raw ? (typeof raw === "string" ? JSON.parse(raw) : raw) : fallback;
+
+    const rawEducation  = parseField(row.education,  null);
+    const rawExperience = parseField(row.experience, null);
+
+    // Normalise to array (new saves are arrays; old saves may be a single object)
+    const educations  = Array.isArray(rawEducation)  ? rawEducation  : rawEducation  ? [rawEducation]  : [];
+    const experiences = Array.isArray(rawExperience) ? rawExperience : rawExperience ? [rawExperience] : [];
+
     const data = {
-      config: typeof row.config === 'string' ? JSON.parse(row.config) : row.config || { template: row.template || "classic" },
-      personal: typeof row.personal === 'string' ? JSON.parse(row.personal) : row.personal || { firstName: "", lastName: "", email: "", phone: "", address: "", profilePic: "" },
-      education: typeof row.education === 'string' ? JSON.parse(row.education) : row.education || { degree: "", institution: "", gradYear: "", gpa: "" },
-      experience: typeof row.experience === 'string' ? JSON.parse(row.experience) : row.experience || { company: "", position: "", details: "" },
-      summary: typeof row.summary === 'string' ? JSON.parse(row.summary) : row.summary || { details: "" },
-      skills: typeof row.skills === 'string' ? JSON.parse(row.skills) : row.skills || { list: "" }
+      config:      parseField(row.config,   { template: row.template || "classic" }),
+      personal:    parseField(row.personal, { firstName: "", lastName: "", email: "", phone: "", address: "", profilePic: "" }),
+      educations,
+      experiences,
+      summary:     parseField(row.summary,  { details: "" }),
+      skills:      parseField(row.skills,   { list: "" }),
+      languages:      parseField(row.languages, []),
+      certifications: parseField(row.certifications, []),
+      projects:       parseField(row.projects, []),
     };
 
     return NextResponse.json({ data, resumeId: row.id }, { status: 200 });

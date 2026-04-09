@@ -51,3 +51,27 @@ export async function PATCH(request) {
     return NextResponse.json({ message: "Server Error" }, { status: 500 });
   }
 }
+
+export async function DELETE(request) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    // Delete the user from the database. 
+    // ON DELETE CASCADE will handle associated resumes, resume_content, and user_emails.
+    const sql = "DELETE FROM users WHERE id = ?";
+    await query(sql, [user.id]);
+
+    // Import cookies dynamically to avoid next/headers issues in edge cases if possible, 
+    // but standard import is fine for Next.js App Router API.
+    const { cookies } = await import("next/headers");
+    cookies().delete("token");
+
+    return NextResponse.json({ message: "Account deleted successfully" }, { status: 200 });
+  } catch (error) {
+    console.error("Account Deletion Error:", error);
+    return NextResponse.json({ message: "Server Error" }, { status: 500 });
+  }
+}

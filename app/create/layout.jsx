@@ -1,16 +1,22 @@
-"use client";
-import { ResumeProvider } from "@/contexts/ResumeContext";
-import CreateNavbar from "@/components/create/CreateNavbar";
+import { getCurrentUser } from "@/lib/session";
+import { redirect } from "next/navigation";
+import CreateLayoutClient from "./CreateLayoutClient";
 
-export default function CreateLayout({ children }) {
-  return (
-    <ResumeProvider>
-      <div className="bg-gray-50 min-h-screen flex flex-col">
-        <CreateNavbar />
-        <div className="flex-1">
-          {children}
-        </div>
-      </div>
-    </ResumeProvider>
-  );
+/**
+ * Create Layout (Server Side Protection)
+ * ใช้ตรวจสอบสิทธิ์แทน Middleware สำหรับเส้นทาง /create
+ */
+export default async function CreateLayout({ children }) {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    redirect("/auth/login?from=/create");
+  }
+
+  // ห้าม Admin เข้ามาส่วนของผู้ใช้ (ความต้องการเดิมใน proxy.js)
+  if (user.role?.toLowerCase() === "admin") {
+    redirect("/admin");
+  }
+
+  return <CreateLayoutClient>{children}</CreateLayoutClient>;
 }

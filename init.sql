@@ -40,8 +40,10 @@ CREATE TABLE `resume_content` (
   `personal` json DEFAULT NULL,
   `education` json DEFAULT NULL,
   `experience` json DEFAULT NULL,
-  `summary` json DEFAULT NULL,
   `skills` json DEFAULT NULL,
+  `languages` json DEFAULT NULL, -- Added missing column
+  `certifications` json DEFAULT NULL, -- Added missing column
+  `projects` json DEFAULT NULL, -- Added missing column
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),

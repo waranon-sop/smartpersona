@@ -1,14 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import styles from "@/app/styles/navbar.module.css";
 
 const Navbar = () => {
-  const [language, setLanguage] = useState("TH");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn]       = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
-  const [userName, setUserName] = useState("");
+  const [userName, setUserName]           = useState("");
+  const [scrolled, setScrolled]           = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -20,97 +20,58 @@ const Navbar = () => {
           setUserName(data.name || "");
         } else {
           setIsLoggedIn(false);
-          setUserName("");
         }
-      } catch (error) {
+      } catch {
         setIsLoggedIn(false);
-        setUserName("");
       } finally {
         setIsLoadingAuth(false);
       }
     };
     checkAuth();
+
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const handleLanguageChange = () => {
-    // TODO: Implement language change logic
-    console.log("Change language");
-  };
-
-  const handleLogin = () => {
-    window.location.href = "/auth/login";
-  };
-
   const handleLogout = async () => {
-    try {
-      await fetch("/api/auth/logout", { method: "POST" });
-      window.location.href = "/";
-    } catch (error) {
-      console.error("Logout error", error);
-      window.location.href = "/";
-    }
+    try { await fetch("/api/auth/logout", { method: "POST" }); } catch {}
+    window.location.href = "/";
   };
-
-  if (isLoadingAuth) {
-    return (
-      <nav className={styles.navbar}>
-        <div className={styles.left}>
-          <Link href="/" className={styles.logo}>
-            <span className={styles.logoText}>Smart Persona</span>
-          </Link>
-        </div>
-        <div className={styles.right}>
-          <button className={styles.loginBtn} disabled>
-            กำลังโหลด...
-          </button>
-        </div>
-      </nav>
-    );
-  }
 
   return (
-    <nav className={styles.navbar}>
+    <nav className={`${styles.navbar} ${scrolled ? styles.scrolled : ""}`}>
       <div className={styles.left}>
         <Link href="/" className={styles.logo}>
+          <div className={styles.logoIcon}>S</div>
           <span className={styles.logoText}>Smart Persona</span>
         </Link>
-
         <ul className={styles.navMenu}>
-          <li>
-            <Link href="/" className={`${styles.navLink} ${styles.active}`}>
-              หน้าหลัก
-            </Link>
-          </li>
-          <li>
-            <Link href="#about" className={styles.navLink}>
-              เกี่ยวกับ Smart Persona
-            </Link>
-          </li>
+          <li><Link href="/" className={`${styles.navLink} ${styles.active}`}>หน้าหลัก</Link></li>
+          <li><Link href="#features" className={styles.navLink}>ฟีเจอร์</Link></li>
+          <li><Link href="#about" className={styles.navLink}>เกี่ยวกับ</Link></li>
         </ul>
       </div>
 
       <div className={styles.right}>
-        <button
-          className={styles.languageSelector}
-          onClick={handleLanguageChange}
-          title="เปลี่ยนภาษา"
-        >
-          {language}
-          <span className={styles.dropdownArrow}>▼</span>
-        </button>
-
-        {isLoggedIn && userName ? (
-          <span className={styles.userGreeting}>สวัสดี, {userName}</span>
-        ) : null}
-
-        {isLoggedIn ? (
-          <button className={styles.loginBtn} onClick={handleLogout}>
-            ออกจากระบบ
-          </button>
-        ) : (
-          <button className={styles.loginBtn} onClick={handleLogin}>
-            เข้าสู่ระบบ
-          </button>
+        {!isLoadingAuth && (
+          <>
+            {isLoggedIn && userName && (
+              <span className={styles.userGreeting}>สวัสดี, {userName}</span>
+            )}
+            {isLoggedIn ? (
+              <button className={styles.secondaryBtn} onClick={handleLogout}>ออกจากระบบ</button>
+            ) : (
+              <>
+                <button className={styles.secondaryBtn} onClick={() => window.location.href = "/auth/login"}>
+                  เข้าสู่ระบบ
+                </button>
+                <button className={styles.primaryBtn} onClick={() => window.location.href = "/auth/register"}>
+                  ลงทะเบียน
+                </button>
+              </>
+            )}
+          </>
         )}
       </div>
     </nav>

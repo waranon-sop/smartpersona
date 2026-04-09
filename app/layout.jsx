@@ -12,6 +12,8 @@ export const metadata = {
   description: "สร้าง Resume และ Portfolio สวยงาม ง่ายดาย และโดนเด่น ด้วย SmartPersona",
 };
 
+import { Toaster } from "react-hot-toast";
+
 export default function RootLayout({ children }) {
   return (
     <html
@@ -19,7 +21,36 @@ export default function RootLayout({ children }) {
       suppressHydrationWarning
       className={`${geistSans.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <Toaster 
+          position="top-center" 
+          reverseOrder={false} 
+          toastOptions={{
+            style: {
+              background: '#fff',
+              color: '#1a1a1a',
+              boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
+              borderRadius: '12px',
+              padding: '16px 24px',
+              fontWeight: '500',
+              fontFamily: 'var(--font-geist-sans)',
+            },
+            success: {
+              iconTheme: {
+                primary: '#10b981',
+                secondary: '#fff',
+              },
+            },
+            error: {
+              iconTheme: {
+                primary: '#ef4444',
+                secondary: '#fff',
+              },
+            },
+          }} 
+        />
+      </body>
     </html>
   );
 }

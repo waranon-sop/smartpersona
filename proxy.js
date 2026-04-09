@@ -64,7 +64,7 @@ export async function proxy(request) {
     if (userRole === "admin") {
       return NextResponse.redirect(new URL("/admin/dashboard", request.url));
     }
-    return NextResponse.redirect(new URL("/create/dashboarduser", request.url));
+    return NextResponse.redirect(new URL("/create/dashboard", request.url));
   }
 
   // 4. Admin Route Protection: Must have 'admin' role
@@ -74,7 +74,7 @@ export async function proxy(request) {
         return NextResponse.json({ error: 'Forbidden: Admins only' }, { status: 403 });
       }
       // Redirect regular users to their dashboard if they try to access /admin
-      const dashboardUrl = new URL("/create/dashboarduser", request.url);
+      const dashboardUrl = new URL("/create/dashboard", request.url);
       return NextResponse.redirect(dashboardUrl);
     }
   }

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import ResumeRenderer from '@/components/ResumeRenderer';
+import ResumeRenderer from "@/components/features/resume/ResumeRenderer";
 import { Eye, Code, Download } from 'lucide-react';
 import { useReactToPrint } from 'react-to-print';
 import { useSearchParams } from 'next/navigation';

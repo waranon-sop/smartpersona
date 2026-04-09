@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useResume } from "@/contexts/ResumeContext";
 
 import UserMenu from "./UserMenu";
 
@@ -10,6 +11,7 @@ export default function CreateNavbar() {
   const router = useRouter();
   const pathname = usePathname();
   const [userName, setUserName] = useState("");
+  const { resumeId } = useResume();
 
   useEffect(() => {
     // ดึงชื่อสดจาก DB (เหมือนกับ Dashboard) แทนการอ่านจาก JWT ที่อาจ stale
@@ -29,7 +31,7 @@ export default function CreateNavbar() {
   };
 
   const navItems = [
-    { href: "/create/dashboarduser", label: "📋 Dashboard" },
+    { href: "/create/dashboard", label: "📋 Dashboard", ignoreResumeId: true },
     { href: "/create/templates",     label: "🎨 เทมเพลต" },
     { href: "/create/personalInfo",  label: "✏️ กรอกข้อมูล" },
   ];
@@ -53,7 +55,7 @@ export default function CreateNavbar() {
             return (
               <div key={item.href} className="flex items-center">
                 <Link
-                  href={item.href}
+                  href={item.ignoreResumeId || !resumeId ? item.href : `${item.href}?resumeId=${resumeId}`}
                   className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
                     isActive
                       ? "bg-white text-[#0066cc] shadow-sm ring-1 ring-gray-100"
