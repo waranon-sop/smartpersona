@@ -1,15 +1,34 @@
 "use client";
 
-import { useState } from "react";
-import { Copy, Trash2, ExternalLink, Check, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Copy, Trash2, ExternalLink, Check, Loader2, Share2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function DashboardClient({ resumeId, accentColor = "#667eea" }) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDuplicating, setIsDuplicating] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
   const [copied, setCopied] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [isPublic, setIsPublic] = useState(false);
   const router = useRouter();
+
+  // Check if resume is public on mount
+  useEffect(() => {
+    const checkPublicStatus = async () => {
+      try {
+        const res = await fetch(`/api/resume/publish?resumeId=${resumeId}`);
+        if (res.ok) {
+          const data = await res.json();
+          setIsPublic(data.isPublic);
+        }
+      } catch (err) {
+        console.error("Error checking public status:", err);
+      }
+    };
+    checkPublicStatus();
+  }, [resumeId]);
 
   const handleCopyLink = () => {
     const url = `${window.location.origin}/resume/${resumeId}`;
@@ -49,55 +68,95 @@ export default function DashboardClient({ resumeId, accentColor = "#667eea" }) {
     }
   };
 
+  const handlePublishToggle = async () => {
+    setIsPublishing(true);
+    try {
+      if (isPublic) {
+        // Unpublish
+        const res = await fetch(`/api/resume/publish`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ resumeId }),
+        });
+        if (res.ok) {
+          setIsPublic(false);
+          toast.success("ยกเลิกการเผยแพร่ Resume เรียบร้อย");
+        } else {
+          toast.error("เกิดข้อผิดพลาดในการยกเลิก");
+        }
+      } else {
+        // Publish
+        const res = await fetch(`/api/resume/publish`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ resumeId }),
+        });
+        if (res.ok) {
+          setIsPublic(true);
+          toast.success("เผยแพร่ Resume เรียบร้อย! คนอื่นสามารถค้นหา Resume นี้ได้");
+        } else {
+          const data = await res.json();
+          toast.error(data.message || "เกิดข้อผิดพลาดในการเผยแพร่");
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("เกิดข้อผิดพลาด");
+    } finally {
+      setIsPublishing(false);
+    }
+  };
+
+
   return (
     <div className="flex items-center justify-between gap-2">
-      {/* Icon Actions */}
-      <div className="flex items-center gap-1.5">
-        {/* Duplicate */}
+      <div className="flex items-center gap-2">
+        <button
+          onClick={handlePublishToggle}
+          disabled={isPublishing}
+          title={isPublic ? "ยกเลิกการเผยแพร่" : "เผยแพร่ Resume"}
+          className="w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 disabled:opacity-50"
+          style={{
+            background: isPublic ? "#10b98120" : "rgba(99,102,241,0.12)",
+            color: isPublic ? "#059669" : accentColor,
+            border: isPublic ? "1px solid #10b98140" : `1px solid ${accentColor}30`,
+          }}
+        >
+          {isPublishing ? <Loader2 size={14} className="animate-spin" /> : <Share2 size={16} />}
+        </button>
+
         <button
           onClick={handleDuplicate}
           disabled={isDuplicating}
           title="คัดลอกเรซูเม่"
-          className="w-8 h-8 flex items-center justify-center rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 disabled:opacity-50"
-          style={{ background: `${accentColor}18`, color: accentColor }}
+          className="w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 disabled:opacity-50"
+          style={{ background: "rgba(99,102,241,0.12)", color: accentColor, border: `1px solid ${accentColor}30` }}
         >
-          {isDuplicating
-            ? <Loader2 size={13} className="animate-spin" />
-            : <Copy size={13} />
-          }
+          {isDuplicating ? <Loader2 size={14} className="animate-spin" /> : <Copy size={16} />}
         </button>
 
-        {/* Delete — two-stage confirm */}
         <button
           onClick={handleDelete}
           disabled={isDeleting}
           title={deleteConfirm ? "คลิกอีกครั้งเพื่อยืนยันการลบ" : "ลบเรซูเม่"}
-          className="w-8 h-8 flex items-center justify-center rounded-xl transition-all duration-300 hover:scale-110 active:scale-95 disabled:opacity-50 group/del"
-          style={
-            deleteConfirm
-              ? { background: "#ef4444", color: "#ffffff", boxShadow: "0 4px 12px rgba(239, 68, 68, 0.3)" }
-              : { background: "rgba(0,0,0,0.04)", color: "#9ca3af" }
-          }
+          className="w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 disabled:opacity-50"
+          style={deleteConfirm ? { background: "#ef4444", color: "#ffffff", border: "1px solid rgba(239,68,68,0.35)" } : { background: "rgba(0,0,0,0.05)", color: "#6b7280", border: "1px solid rgba(0,0,0,0.08)" }}
         >
-          {isDeleting
-            ? <Loader2 size={13} className="animate-spin text-red-100" />
-            : <Trash2 size={13} className={deleteConfirm ? "scale-110" : "group-hover/del:text-red-500"} />
-          }
+          {isDeleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={16} />}
         </button>
       </div>
 
-      {/* Share / Copy Link Button */}
       <button
         onClick={handleCopyLink}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 hover:scale-105 active:scale-95"
+        title="คัดลอกลิงก์แชร์"
+        className="w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95"
         style={{
-          background: copied ? "#10b98118" : `${accentColor}15`,
-          color: copied ? "#10b981" : accentColor,
-          border: `1px solid ${copied ? "#10b98135" : `${accentColor}28`}`,
+          background: copied ? "#10b98120" : "rgba(99,102,241,0.12)",
+          color: copied ? "#059669" : accentColor,
+          border: copied ? "1px solid #10b98140" : `1px solid ${accentColor}30`,
         }}
       >
-        {copied ? <Check size={11} /> : <ExternalLink size={11} />}
-        {copied ? "คัดลอกแล้ว!" : "แชร์ลิงก์"}
+        {copied ? <Check size={16} /> : <ExternalLink size={16} />}
       </button>
     </div>
   );

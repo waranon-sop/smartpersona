@@ -48,6 +48,7 @@ const Navbar = () => {
         </Link>
         <ul className={styles.navMenu}>
           <li><Link href="/" className={`${styles.navLink} ${styles.active}`}>หน้าหลัก</Link></li>
+          <li><Link href="/browse-resumes" className={styles.navLink}>ค้นหา Resume</Link></li>
           <li><Link href="#features" className={styles.navLink}>ฟีเจอร์</Link></li>
           <li><Link href="#about" className={styles.navLink}>เกี่ยวกับ</Link></li>
         </ul>

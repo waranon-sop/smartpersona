@@ -13,6 +13,9 @@ CREATE TABLE `resume_content` (
   `experience` json DEFAULT NULL,
   `summary` json DEFAULT NULL,
   `skills` json DEFAULT NULL,
+  `languages` json DEFAULT NULL,
+  `certifications` json DEFAULT NULL,
+  `projects` json DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -34,18 +37,22 @@ CREATE TABLE `resumes` (
   `status` enum('Draft','Published','Archived') DEFAULT 'Draft',
   `views` int DEFAULT '0',
   `downloads` int DEFAULT '0',
+  `is_public` tinyint(1) DEFAULT '0',
+  `public_key` varchar(50) UNIQUE,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
+  KEY `is_public_idx` (`is_public`),
+  KEY `public_key_idx` (`public_key`),
   CONSTRAINT `resumes_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-INSERT INTO `resumes` (`id`, `user_id`, `title`, `template`, `status`, `views`, `downloads`, `created_at`) VALUES
-('358e1a4c-5177-4066-b797-b2641ae1d2ce', 5, 'My Resume', 'classic', 'Draft', 0, 0, '2026-04-02 14:57:50'),
-('75ff6253-2b42-41b0-b09a-c1cd5127314c', 5, 'dwada dawdad Resume', 'modern', 'Draft', 0, 0, '2026-04-02 14:29:57'),
-('RES-001', 1, 'Software Engineer Resume', 'Modern UX', 'Published', 150, 45, '2026-04-02 12:52:15'),
-('RES-002', 2, 'Marketing Director CV', 'Professional', 'Draft', 0, 0, '2026-04-02 12:52:15'),
-('RES-003', 2, 'Data Scientist Profile', 'Minimalist', 'Published', 320, 110, '2026-04-02 12:52:15');
+INSERT INTO `resumes` (`id`, `user_id`, `title`, `template`, `status`, `views`, `downloads`, `is_public`, `created_at`) VALUES
+('358e1a4c-5177-4066-b797-b2641ae1d2ce', 5, 'My Resume', 'classic', 'Draft', 0, 0, 0, '2026-04-02 14:57:50'),
+('75ff6253-2b42-41b0-b09a-c1cd5127314c', 5, 'dwada dawdad Resume', 'modern', 'Draft', 0, 0, 0, '2026-04-02 14:29:57'),
+('RES-001', 1, 'Software Engineer Resume', 'Modern UX', 'Published', 150, 45, 1, '2026-04-02 12:52:15'),
+('RES-002', 2, 'Marketing Director CV', 'Professional', 'Draft', 0, 0, 0, '2026-04-02 12:52:15'),
+('RES-003', 2, 'Data Scientist Profile', 'Minimalist', 'Published', 320, 110, 0, '2026-04-02 12:52:15');
 
 
 DROP TABLE IF EXISTS `roles`;
