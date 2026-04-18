@@ -1,14 +1,15 @@
 "use client";
 import { createContext, useState, useContext, useCallback } from "react";
+import { v4 as uuidv4 } from "uuid";
 
 const ResumeContext = createContext();
 
 // Default blank entries
-const blankExperience    = () => ({ id: Date.now() + Math.random(), position: "", company: "", location: "", startDate: "", endDate: "", isCurrent: false, details: "" });
-const blankEducation     = () => ({ id: Date.now() + Math.random(), degree: "", field: "", institution: "", location: "", startYear: "", gradYear: "", gpa: "", activities: "" });
-const blankCertification = () => ({ id: Date.now() + Math.random(), name: "", issuer: "", issueDate: "", credentialId: "" });
-const blankProject       = () => ({ id: Date.now() + Math.random(), name: "", role: "", tech: "", url: "", description: "" });
-const blankLanguage      = () => ({ id: Date.now() + Math.random(), language: "", level: "Professional" });
+const blankExperience    = () => ({ id: uuidv4(), position: "", company: "", location: "", startDate: "", endDate: "", isCurrent: false, details: "" });
+const blankEducation     = () => ({ id: uuidv4(), degree: "", field: "", institution: "", location: "", startYear: "", gradYear: "", gpa: "", activities: "" });
+const blankCertification = () => ({ id: uuidv4(), name: "", issuer: "", issueDate: "", credentialId: "" });
+const blankProject       = () => ({ id: uuidv4(), name: "", role: "", tech: "", url: "", description: "" });
+const blankLanguage      = () => ({ id: uuidv4(), language: "", level: "Professional" });
 
 const blankFactories = {
   experiences:    blankExperience,
@@ -74,20 +75,31 @@ export function ResumeProvider({ children }) {
     });
   }, []);
 
+  // Reorder an item in an array section
+  const reorderArrayItem = useCallback((section, oldIndex, newIndex) => {
+    setData((prev) => {
+      const arr = [...(prev[section] || [])];
+      if (oldIndex < 0 || oldIndex >= arr.length || newIndex < 0 || newIndex >= arr.length) return prev;
+      const [movedItem] = arr.splice(oldIndex, 1);
+      arr.splice(newIndex, 0, movedItem);
+      return { ...prev, [section]: arr };
+    });
+  }, []);
+
   // Load saved data — migrate old single-object format to array format if needed
   const setInitialData = useCallback((newData) => {
     const migrated = { ...defaultData(), ...newData };
 
     // Migrate legacy experience object → array
     if (newData.experience && !newData.experiences) {
-      migrated.experiences = [{ id: Date.now(), ...newData.experience }];
+      migrated.experiences = [{ id: uuidv4(), ...newData.experience }];
     } else if (!Array.isArray(migrated.experiences) || migrated.experiences.length === 0) {
       migrated.experiences = [blankExperience()];
     }
 
     // Migrate legacy education object → array
     if (newData.education && !newData.educations) {
-      migrated.educations = [{ id: Date.now(), ...newData.education }];
+      migrated.educations = [{ id: uuidv4(), ...newData.education }];
     } else if (!Array.isArray(migrated.educations) || migrated.educations.length === 0) {
       migrated.educations = [blankEducation()];
     }
@@ -113,6 +125,7 @@ export function ResumeProvider({ children }) {
       updateArrayItem,
       addArrayItem,
       removeArrayItem,
+      reorderArrayItem,
       setInitialData,
       resumeId,
       setResumeId,

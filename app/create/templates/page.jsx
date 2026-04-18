@@ -15,7 +15,7 @@ const templates = [
     tag: "Traditional",
     desc: "เรียบหรู เป็นทางการ เหมาะกับองค์กร ราชการ และบริษัทใหญ่",
     suitable: ["ราชการ / รัฐวิสาหกิจ", "บริษัทแบบ Corporate", "งานอาวุโส"],
-    accent: "#1e3a5f",
+    accent: "#1e3a8a",
     bg: "#f8fafc",
   },
   {
@@ -25,7 +25,7 @@ const templates = [
     tagColor: "#f97316",
     desc: "Two-column สะอาด มีความน่าเชื่อถือ ใช้ได้กับแทบทุกสาย",
     suitable: ["Marketing / Sales", "Finance / Consulting", "งานทั่วไป"],
-    accent: "#2d3748",
+    accent: "#334155",
     bg: "#fff",
   },
   {
@@ -35,7 +35,7 @@ const templates = [
     tagColor: "#7c3aed",
     desc: "ดูทันสมัย มีน้ำหนัก เหมาะกับงาน Creative ระดับกลาง-สูง",
     suitable: ["UX/UI Designer", "Product Manager", "Brand Manager"],
-    accent: "#2b6cb0",
+    accent: "#6366f1",
     bg: "#f0f5ff",
   },
   {
@@ -45,7 +45,7 @@ const templates = [
     tagColor: "#0891b2",
     desc: "Dark header สุดเท่ เน้น Tech Stack เหมาะกับสายไอที",
     suitable: ["Software Engineer", "DevOps / Cloud", "Data Engineer"],
-    accent: "#553c9a",
+    accent: "#22c55e",
     bg: "#fff",
   },
   {
@@ -55,7 +55,7 @@ const templates = [
     tagColor: "#059669",
     desc: "สไตล์อบอุ่น ผ่อนคลาย เหมาะกับ Startup และ SME",
     suitable: ["Startup / SME", "Community / NGO", "Freelancer"],
-    accent: "#276749",
+    accent: "#10b981",
     bg: "#f0fff4",
   },
   {
@@ -64,7 +64,7 @@ const templates = [
     tag: "Minimal",
     desc: "Minimalist สุด พื้นที่ขาวอ่านง่าย เน้นเนื้อหา 100%",
     suitable: ["Academia / Research", "Legal / Law", "Operations"],
-    accent: "#374151",
+    accent: "#18181b",
     bg: "#fff",
   },
   {
@@ -74,7 +74,7 @@ const templates = [
     tagColor: "#db2777",
     desc: "กล้า โดดเด่น ใช้ Typography หนัก เหมาะงานสร้างสรรค์",
     suitable: ["Graphic / Motion Design", "Art Director", "Creative Copywriter"],
-    accent: "#97266d",
+    accent: "#f97316",
     bg: "#fff0f6",
   },
 ];

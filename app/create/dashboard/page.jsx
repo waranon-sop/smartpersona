@@ -8,13 +8,13 @@ export const dynamic = "force-dynamic";
 
 // Color map for template cards
 const templateColors = {
-  classic:        { from: "#1e3a5f", to: "#2c5282", accent: "#4299e1" },
-  modern:         { from: "#1a202c", to: "#2d3748", accent: "#667eea" },
-  glass_modern:   { from: "#2b6cb0", to: "#3182ce", accent: "#90cdf4" },
-  tech_innovator: { from: "#553c9a", to: "#7c3aed", accent: "#b794f4" },
-  startup_vibe:   { from: "#276749", to: "#2f855a", accent: "#68d391" },
-  clean_slate:    { from: "#2d3748", to: "#4a5568", accent: "#a0aec0" },
-  creative_agency:{ from: "#97266d", to: "#b83280", accent: "#f687b3" },
+  classic:        { from: "#1e3a8a", to: "#2563eb", accent: "#3b82f6" },
+  modern:         { from: "#334155", to: "#475569", accent: "#fbbf24" },
+  glass_modern:   { from: "#6366f1", to: "#a855f7", accent: "#8b5cf6" },
+  tech_innovator: { from: "#000000", to: "#18181b", accent: "#22c55e" },
+  startup_vibe:   { from: "#1f2937", to: "#064e3b", accent: "#10b981" },
+  clean_slate:    { from: "#18181b", to: "#3f3f46", accent: "#71717a" },
+  creative_agency:{ from: "#ea580c", to: "#f97316", accent: "#fb923c" },
 };
 
 function ResumeCardPreview({ template }) {

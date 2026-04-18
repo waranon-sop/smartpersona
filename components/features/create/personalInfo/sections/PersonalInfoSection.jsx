@@ -4,15 +4,16 @@ import { User } from "lucide-react";
 import Section from "@/components/ui/Section";
 import { Input, Lbl } from "@/components/ui/FormElements";
 
-const PersonalInfoSection = memo(({ data, updateData, uploadStatus, handleUpload, handleRemoveImage }) => {
+const PersonalInfoSection = memo(({ data, updateData, uploadStatus, handleUpload, handleRemoveImage, errors = {} }) => {
   return (
     <Section icon={User} color="#6366f1" title="ข้อมูลส่วนตัว">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <Input 
-          label="ชื่อ (ภาษาอังกฤษ)" 
+          label="ชื่อ (ภาษาอังกฤษ) *" 
           placeholder="e.g. Somchai" 
           value={data?.firstName || ""}
           onChange={(e) => updateData("personal", "firstName", e.target.value)} 
+          error={errors.firstName}
         />
 
         <Input 
@@ -32,11 +33,12 @@ const PersonalInfoSection = memo(({ data, updateData, uploadStatus, handleUpload
         </div>
 
         <Input 
-          label="อีเมล" 
+          label="อีเมล *" 
           type="email" 
           placeholder="name@email.com" 
           value={data?.email || ""}
           onChange={(e) => updateData("personal", "email", e.target.value)} 
+          error={errors.email}
         />
 
         <Input 

@@ -2,244 +2,400 @@
 import React, { memo } from "react";
 import { THEMES } from "./themes";
 
+/* ── Date formatter ── */
 const fmtDate = (val, isCurrent) => {
   if (isCurrent) return "Present";
   if (!val) return "";
   const parts = val.split("-");
-  if (parts.length === 1) return parts[0]; 
+  if (parts.length === 1) return parts[0];
   const [year, month] = parts;
-  const m = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][parseInt(month, 10)] || month;
+  const m = ["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][parseInt(month, 10)] || month;
   return m ? `${m} ${year}` : year;
 };
 
+/* ── Parse bullet lines from text ── */
+const renderDetails = (text, color) => {
+  if (!text) return null;
+  const lines = text.split('\n').filter(l => l.trim());
+  return (
+    <div style={{ fontSize: 10.5, lineHeight: 1.7, color }}>
+      {lines.map((line, i) => {
+        const trimmed = line.trim();
+        const isBullet = /^[•\-\*]/.test(trimmed);
+        if (isBullet) {
+          return (
+            <div key={i} style={{ display: 'flex', gap: 6, marginTop: i > 0 ? 1 : 0 }}>
+              <span style={{ flexShrink: 0, marginTop: 1 }}>•</span>
+              <span>{trimmed.replace(/^[•\-\*]\s*/, '')}</span>
+            </div>
+          );
+        }
+        return <p key={i} style={{ marginTop: i > 0 ? 2 : 0 }}>{trimmed}</p>;
+      })}
+    </div>
+  );
+};
+
 const ResumeRenderer = memo(function ResumeRenderer({ data }) {
-  if (!data) return <div className="text-gray-400 p-8 italic">No data available</div>;
+  if (!data) return <div style={{ padding: 32, color: '#999', fontStyle: 'italic' }}>No data available</div>;
 
   const tplId = data.config?.template || "modern";
-  const theme = THEMES[tplId] || THEMES.modern;
-  
+  const t = THEMES[tplId] || THEMES.modern;
+
   const p = data.personal || {};
   const s = data.summary || {};
   const sk = data.skills || {};
-  const ex = data.experiences || [];
-  const ed = data.educations || [];
-  const lang = data.languages || [];
-  const cert = data.certifications || [];
-  const proj = data.projects || [];
+  const ex = (data.experiences || []).filter(e => e.position || e.company);
+  const ed = (data.educations || []).filter(e => e.degree || e.institution);
+  const lang = (data.languages || []).filter(l => l.language);
+  const cert = (data.certifications || []).filter(c => c.name);
+  const proj = (data.projects || []).filter(pr => pr.name);
 
   const fullName = `${p.firstName || ""} ${p.lastName || ""}`.trim();
-  
-  const getSubTitleClass = () => {
-    if (tplId === "creative_agency") return "text-white mt-4 border-l-4 border-white pl-4";
-    return "";
-  }
+  const skills = sk.list ? sk.list.split(",").map(s => s.trim()).filter(Boolean) : [];
+
+  /* ── Inline styles ── */
+  const page = {
+    fontFamily: t.fontFamily,
+    backgroundColor: t.pageBg,
+    color: t.mainTextColor,
+    width: '100%',
+    minHeight: 1056,
+    display: 'flex',
+    flexDirection: 'column',
+    position: 'relative',
+    overflow: 'hidden',
+    ...(tplId === 'startup_vibe' 
+      ? { borderTop: '16px solid #10b981' }
+      : t.pageBorder 
+        ? { border: t.pageBorder }
+        : {}
+    ),
+    boxSizing: 'border-box',
+  };
+
+  const header = {
+    background: t.headerBg,
+    padding: '36px 28px 30px 35%',
+    position: 'relative',
+    zIndex: 0,
+  };
+
+  const sidebar = {
+    width: '33%',
+    background: t.sidebarBg,
+    padding: '80px 20px 28px 20px',
+    position: 'relative',
+    flexShrink: 0,
+    ...(tplId === 'clean_slate' ? { borderRight: '1px solid #e4e4e7' } : {}),
+  };
+
+  const main = {
+    width: '67%',
+    padding: '24px 28px 28px 28px',
+    flexGrow: 1,
+  };
+
+  const sectionHeadingStyle = (color) => ({
+    fontSize: 10,
+    fontWeight: 800,
+    textTransform: 'uppercase',
+    letterSpacing: '0.18em',
+    color,
+    marginBottom: 6,
+  });
+
+  const accentBar = (color, width = 24) => ({
+    width,
+    height: 2.5,
+    backgroundColor: color,
+    borderRadius: 2,
+    marginBottom: 10,
+  });
+
+  const mainSectionTitle = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+  };
+
+  const iconCircle = {
+    width: 26,
+    height: 26,
+    borderRadius: '50%',
+    backgroundColor: t.mainAccent,
+    color: t.pageBg === '#0a0a0a' ? '#000' : '#fff',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 11,
+    flexShrink: 0,
+  };
+
+  const dot = {
+    position: 'absolute',
+    left: -19,
+    top: 6,
+    width: 7,
+    height: 7,
+    borderRadius: '50%',
+    backgroundColor: t.dotBg,
+    border: tplId === 'clean_slate' ? `2px solid ${t.dotBg}` : 'none',
+    ...(tplId === 'clean_slate' ? { backgroundColor: '#fff' } : {}),
+    ...(tplId === 'tech_innovator' ? { borderRadius: 0, boxShadow: `0 0 6px ${t.dotBg}` } : {}),
+  };
+
+  const contactItem = { display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 10, lineHeight: 1.5 };
+  const contactIcon = { width: 14, textAlign: 'center', fontSize: 9, flexShrink: 0, marginTop: 1, color: t.sidebarAccent };
 
   return (
-    <div className={`${theme.wrapperBg} ${theme.font} ${theme.pageText} w-full min-h-[1056px] ${theme.border} flex flex-col relative overflow-hidden box-border`}>
-      
-      {/* HEADER AREA */}
-      <div className={`w-full ${theme.headerBg} ${theme.nameColor} py-12 pr-12 pl-[38%] relative z-0`}>
-        <h1 className="text-4xl font-black uppercase tracking-wider mb-1 leading-tight drop-shadow-sm">
+    <div style={page}>
+      {/* ═════════════════ HEADER ═════════════════ */}
+      <div style={header}>
+        <h1 style={{
+          fontSize: 28,
+          fontWeight: 900,
+          textTransform: 'uppercase',
+          letterSpacing: '0.08em',
+          color: t.headerNameColor,
+          lineHeight: 1.1,
+          margin: 0,
+        }}>
           {fullName || "YOUR NAME"}
         </h1>
         {p.jobTitle && (
-          <p className={`text-lg font-bold tracking-widest uppercase ${theme.jobColor} ${getSubTitleClass()}`}>
+          <p style={{
+            fontSize: 12,
+            fontWeight: 600,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            color: t.headerJobColor,
+            marginTop: 6,
+            margin: 0,
+            marginTop: 6,
+          }}>
             {p.jobTitle}
           </p>
         )}
       </div>
 
-      {/* 2-COLUMN LAYOUT */}
-      <div className="flex flex-row flex-1 z-10">
-        
-        {/* LEFT COLUMN */}
-        <div className={`w-[33%] ${theme.sidebarBg} ${tplId === "creative_agency" ? "text-slate-300" : ""} relative flex flex-col items-center pt-24 px-8 pb-12`}>
-          
-          {/* PROFILE PICTURE OVERLAP */}
-          <div className="absolute top-[-80px] left-1/2 -translate-x-1/2 w-40 h-40">
+      {/* ═════════════════ BODY ═════════════════ */}
+      <div style={{ display: 'flex', flex: 1 }}>
+
+        {/* ─── SIDEBAR ─── */}
+        <div style={sidebar}>
+          {/* Profile Photo */}
+          <div style={{
+            position: 'absolute',
+            top: -56,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: 112,
+            height: 112,
+            zIndex: 20,
+          }}>
             {p.profilePic ? (
-              <img src={p.profilePic} alt="Profile" className={`w-full h-full rounded-full object-cover border-8 ${theme.photoBorder} shadow-lg relative z-10 bg-white`} />
+              <img src={p.profilePic} alt="Profile" style={{
+                width: '100%', height: '100%', borderRadius: '50%',
+                objectFit: 'cover', border: `5px solid ${t.photoBorderColor}`,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+              }} />
             ) : (
-              <div className={`w-full h-full rounded-full ${theme.photoFallbackBg} border-8 ${theme.photoBorder} flex items-center justify-center shadow-lg relative z-10 overflow-hidden`}>
-                 <div className="mt-8 w-20 h-20 bg-black/20 rounded-full" />
+              <div style={{
+                width: '100%', height: '100%', borderRadius: '50%',
+                backgroundColor: t.photoFallbackBg,
+                border: `5px solid ${t.photoBorderColor}`,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                overflow: 'hidden',
+              }}>
+                <div style={{ marginTop: 20, width: 48, height: 48, borderRadius: '50%', backgroundColor: 'rgba(0,0,0,0.12)' }} />
               </div>
             )}
           </div>
 
-          <div className="w-full space-y-10">
-            {/* CONTACT */}
-            <div className="w-full">
-              <h3 className={`text-sm font-black uppercase tracking-[0.2em] ${tplId === "creative_agency" ? "text-white" : theme.headingText} mb-2`}>Contact</h3>
-              <div className={`w-full h-[1.5px] ${theme.sidebarHeadingDiv} mb-4`} />
-              <ul className={`space-y-4 text-[11px] ${tplId === "creative_agency" ? "text-slate-300" : "text-slate-700"} font-medium break-all`}>
-                {p.phone && <li className="flex items-center gap-3"><span className={`w-4 flex justify-center text-[10px] ${theme.sidebarListIcon}`}>📞</span>{p.phone}</li>}
-                {p.email && <li className="flex items-center gap-3"><span className={`w-4 flex justify-center text-[10px] ${theme.sidebarListIcon}`}>✉️</span><a href={`mailto:${p.email}`} className="hover:underline">{p.email}</a></li>}
-                {p.address && <li className="flex items-center gap-3"><span className={`w-4 flex justify-center text-[10px] ${theme.sidebarListIcon}`}>📍</span>{p.address}</li>}
-                {p.dateOfBirth && <li className="flex items-center gap-3"><span className={`w-4 flex justify-center text-[10px] ${theme.sidebarListIcon}`}>🎂</span>{fmtDate(p.dateOfBirth)}</li>}
-                {p.nationality && <li className="flex items-center gap-3"><span className={`w-4 flex justify-center text-[10px] ${theme.sidebarListIcon}`}>🌍</span>{p.nationality}</li>}
-                {p.linkedin && <li className="flex items-center gap-3"><span className={`w-4 flex justify-center text-[10px] ${theme.sidebarListIcon}`}>in</span><a href={p.linkedin.includes('http') ? p.linkedin : `https://${p.linkedin}`} target="_blank" rel="noopener noreferrer" className="hover:underline">{(p.linkedin || "").replace(/^https?:\/\/(www\.)?/, "")}</a></li>}
-                {p.github && <li className="flex items-center gap-3"><span className={`w-4 flex justify-center text-[10px] ${theme.sidebarListIcon}`}>gh</span><a href={p.github.includes('http') ? p.github : `https://${p.github}`} target="_blank" rel="noopener noreferrer" className="hover:underline">{(p.github || "").replace(/^https?:\/\/(www\.)?/, "")}</a></li>}
-                {p.portfolio && <li className="flex items-center gap-3"><span className={`w-4 flex justify-center text-[10px] ${theme.sidebarListIcon}`}>🌐</span><a href={p.portfolio.includes('http') ? p.portfolio : `https://${p.portfolio}`} target="_blank" rel="noopener noreferrer" className="hover:underline">{(p.portfolio || "").replace(/^https?:\/\/(www\.)?/, "")}</a></li>}
-              </ul>
-            </div>
-
-            {/* CERTIFICATIONS */}
-            {cert.length > 0 && (
-              <div className="w-full">
-                <h3 className={`text-sm font-black uppercase tracking-[0.2em] ${tplId === "creative_agency" ? "text-white" : theme.headingText} mb-2`}>Certifications</h3>
-                <div className={`w-full h-[1.5px] ${theme.sidebarHeadingDiv} mb-4`} />
-                <ul className={`space-y-4 text-[11px] ${tplId === "creative_agency" ? "text-slate-300" : "text-slate-700"} font-medium`}>
-                  {cert.map((c, i) => (
-                    <li key={i} className="flex gap-2">
-                      <span className={`mt-1.5 w-1.5 h-1.5 rounded-full ${theme.sidebarBullet} flex-shrink-0`} />
-                      <div>
-                        <p className={`font-bold leading-tight ${tplId === "creative_agency" ? "text-white" : ""}`}>{c.name}</p>
-                        <p className={`text-[10px] ${tplId === "creative_agency" ? "text-slate-400" : "text-slate-500"} mt-0.5`}>
-                          {c.issuer} {c.issueDate && `| ${fmtDate(c.issueDate)}`}
-                        </p>
-                        {c.credentialId && <p className={`text-[9.5px] ${tplId === "creative_agency" ? "text-slate-500" : "text-slate-400"} mt-0.5`}>ID: {c.credentialId}</p>}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* LANGUAGES */}
-            {lang.length > 0 && (
-              <div className="w-full">
-                <h3 className={`text-sm font-black uppercase tracking-[0.2em] ${tplId === "creative_agency" ? "text-white" : theme.headingText} mb-2`}>Languages</h3>
-                <div className={`w-full h-[1.5px] ${theme.sidebarHeadingDiv} mb-4`} />
-                <ul className={`space-y-3 text-[11px] ${tplId === "creative_agency" ? "text-slate-300" : "text-slate-700"} font-medium pl-1`}>
-                  {lang.map((l, i) => (
-                    <li key={i} className="flex items-center gap-2">
-                      <span className={`w-1.5 h-1.5 rounded-full ${theme.sidebarBullet} flex-shrink-0`} />
-                      {l.language} <span className={`${tplId === "creative_agency" ? "text-slate-400" : "text-slate-500"}`}>({l.level})</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+          {/* Contact */}
+          <div style={{ marginBottom: 20 }}>
+            <div style={sectionHeadingStyle(t.sidebarHeadingColor)}>Contact</div>
+            <div style={accentBar(t.sidebarAccent)} />
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 7, color: t.sidebarTextColor }}>
+              {p.phone && <li style={contactItem}><span style={contactIcon}>📞</span><span>{p.phone}</span></li>}
+              {p.email && <li style={contactItem}><span style={contactIcon}>✉️</span><span style={{ wordBreak: 'break-all' }}>{p.email}</span></li>}
+              {p.address && <li style={contactItem}><span style={contactIcon}>📍</span><span>{p.address}</span></li>}
+              {p.dateOfBirth && <li style={contactItem}><span style={contactIcon}>🎂</span><span>{fmtDate(p.dateOfBirth)}</span></li>}
+              {p.nationality && <li style={contactItem}><span style={contactIcon}>🌍</span><span>{p.nationality}</span></li>}
+              {p.linkedin && <li style={contactItem}><span style={contactIcon}>in</span><span style={{ wordBreak: 'break-all' }}>{(p.linkedin||"").replace(/^https?:\/\/(www\.)?/, "")}</span></li>}
+              {p.github && <li style={contactItem}><span style={contactIcon}>⌨️</span><span style={{ wordBreak: 'break-all' }}>{(p.github||"").replace(/^https?:\/\/(www\.)?/, "")}</span></li>}
+              {p.portfolio && <li style={contactItem}><span style={contactIcon}>🌐</span><span style={{ wordBreak: 'break-all' }}>{(p.portfolio||"").replace(/^https?:\/\/(www\.)?/, "")}</span></li>}
+            </ul>
           </div>
-        </div>
 
-        {/* RIGHT COLUMN */}
-        <div className="w-[67%] p-10 space-y-8 pb-16">
-          
-          {/* OBJECTIVE */}
-          {s.details && (
-            <div className="relative pl-12">
-              <div className={`absolute left-0 top-0 w-8 h-8 rounded-full ${theme.iconBg} ${theme.iconColor} flex items-center justify-center z-10 text-[10px]`}>👤</div>
-              <div className={`absolute left-4 top-8 bottom-[-40px] ${tplId === 'startup_vibe' ? theme.timelineLine : `w-[1.5px] ${theme.timelineLine}`}`} />
-              <div className="flex items-center gap-4 mb-4 pt-1.5">
-                <h3 className={`text-sm font-black uppercase tracking-[0.2em] ${theme.headingText}`}>Career Objective</h3>
-                <div className={`flex-1 h-[1.5px] ${theme.timelineDivider}`} />
-              </div>
-              <div className="relative">
-                <div className={`absolute top-2 w-[5px] h-[5px] ${theme.timelineDot} z-10`} style={{ left: "-28.5px" }} />
-                <p className={`text-[12px] ${theme.itemBodyColor} leading-relaxed font-medium`}>
-                  {s.details}
-                </p>
+          {/* Skills */}
+          {skills.length > 0 && (
+            <div style={{ marginBottom: 20 }}>
+              <div style={sectionHeadingStyle(t.sidebarHeadingColor)}>Skills</div>
+              <div style={accentBar(t.sidebarAccent)} />
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                {skills.map((s, i) => (
+                  <span key={i} style={{
+                    display: 'inline-block',
+                    padding: '2px 8px',
+                    borderRadius: 4,
+                    fontSize: 9,
+                    fontWeight: 600,
+                    backgroundColor: t.skillBg,
+                    color: t.skillText,
+                  }}>{s}</span>
+                ))}
               </div>
             </div>
           )}
 
-          {/* SKILLS */}
-          {sk.list && (
-            <div className="relative pl-12">
-              <div className={`absolute left-0 top-0 w-8 h-8 rounded-full ${theme.iconBg} ${theme.iconColor} flex items-center justify-center z-10 text-[10px]`}>💡</div>
-              <div className={`absolute left-4 top-8 bottom-[-40px] ${tplId === 'startup_vibe' ? theme.timelineLine : `w-[1.5px] ${theme.timelineLine}`}`} />
-              <div className="flex items-center gap-4 mb-4 pt-1.5">
-                <h3 className={`text-sm font-black uppercase tracking-[0.2em] ${theme.headingText}`}>Key Skills</h3>
-                <div className={`flex-1 h-[1.5px] ${theme.timelineDivider}`} />
-              </div>
-              <div className="relative">
-                <div className={`absolute top-2 w-[5px] h-[5px] ${theme.timelineDot} z-10`} style={{ left: "-28.5px" }} />
-                <ul className={`text-[12px] ${theme.itemBodyColor} leading-relaxed font-medium list-disc pl-4 space-y-2`}>
-                  {sk.list.split(",").map((s, i) => (
-                    <li key={i}>{s.trim()}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          )}
-
-          {/* EDUCATION */}
-          {ed.length > 0 && (
-            <div className="relative pl-12">
-              <div className={`absolute left-0 top-0 w-8 h-8 rounded-full ${theme.iconBg} ${theme.iconColor} flex items-center justify-center z-10 text-[10px]`}>🎓</div>
-              <div className={`absolute left-4 top-8 bottom-[-40px] ${tplId === 'startup_vibe' ? theme.timelineLine : `w-[1.5px] ${theme.timelineLine}`}`} />
-              <div className="flex items-center gap-4 mb-4 pt-1.5">
-                <h3 className={`text-sm font-black uppercase tracking-[0.2em] ${theme.headingText}`}>Education</h3>
-                <div className={`flex-1 h-[1.5px] ${theme.timelineDivider}`} />
-              </div>
-              <div className="space-y-6">
-                {ed.map((item, i) => (
-                  <div key={i} className="relative">
-                    <div className={`absolute top-2 w-[5px] h-[5px] ${theme.timelineDot} z-10`} style={{ left: "-28.5px" }} />
-                    <ul className={`text-[12px] ${theme.itemBodyColor} leading-relaxed font-medium list-disc pl-4 space-y-1`}>
-                      <li>
-                        <span className={`font-bold ${theme.itemTitleColor}`}>{item.degree}</span> {item.field ? `in ${item.field}` : ""} 
-                        <span className={theme.itemSubColor}> | {item.institution}</span>
-                        {item.location && <span className={theme.itemSubColor}> | {item.location}</span>}
-                        <span className={theme.itemSubColor}> | {item.startYear ? `${fmtDate(item.startYear)} - ` : ""}{fmtDate(item.gradYear)}</span>
-                      </li>
-                      {item.gpa && <li><span className="font-semibold text-slate-500">CGPA:</span> {item.gpa}</li>}
-                      {item.activities && <li>{item.activities}</li>}
-                    </ul>
+          {/* Languages */}
+          {lang.length > 0 && (
+            <div style={{ marginBottom: 20 }}>
+              <div style={sectionHeadingStyle(t.sidebarHeadingColor)}>Languages</div>
+              <div style={accentBar(t.sidebarAccent)} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {lang.map((l, i) => (
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 10, color: t.sidebarTextColor }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ width: 5, height: 5, borderRadius: '50%', backgroundColor: t.sidebarAccent, flexShrink: 0 }} />
+                      <span style={{ fontWeight: 600 }}>{l.language}</span>
+                    </div>
+                    <span style={{ fontSize: 8.5, color: t.sidebarMutedText, backgroundColor: t.pageBg === '#0a0a0a' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)', padding: '1px 6px', borderRadius: 3 }}>{l.level}</span>
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          {/* ACADEMIC PROJECTS */}
-          {proj.length > 0 && (
-            <div className="relative pl-12">
-              <div className={`absolute left-0 top-0 w-8 h-8 rounded-full ${theme.iconBg} ${theme.iconColor} flex items-center justify-center z-10 text-[10px]`}>🚀</div>
-              <div className={`absolute left-4 top-8 bottom-[-40px] ${tplId === 'startup_vibe' ? theme.timelineLine : `w-[1.5px] ${theme.timelineLine}`}`} />
-              <div className="flex items-center gap-4 mb-4 pt-1.5">
-                <h3 className={`text-sm font-black uppercase tracking-[0.2em] ${theme.headingText}`}>Projects</h3>
-                <div className={`flex-1 h-[1.5px] ${theme.timelineDivider}`} />
+          {/* Certifications */}
+          {cert.length > 0 && (
+            <div style={{ marginBottom: 20 }}>
+              <div style={sectionHeadingStyle(t.sidebarHeadingColor)}>Certifications</div>
+              <div style={accentBar(t.sidebarAccent)} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {cert.map((c, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 6, fontSize: 10, color: t.sidebarTextColor }}>
+                    <span style={{ width: 5, height: 5, borderRadius: '50%', backgroundColor: t.sidebarAccent, flexShrink: 0, marginTop: 5 }} />
+                    <div style={{ lineHeight: 1.4 }}>
+                      <div style={{ fontWeight: 700 }}>{c.name}</div>
+                      <div style={{ fontSize: 9, color: t.sidebarMutedText, marginTop: 1 }}>
+                        {c.issuer}{c.issueDate && ` · ${fmtDate(c.issueDate)}`}
+                      </div>
+                      {c.credentialId && <div style={{ fontSize: 8.5, color: t.sidebarMutedText, marginTop: 1 }}>ID: {c.credentialId}</div>}
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div className="space-y-6">
+            </div>
+          )}
+        </div>
+
+        {/* ─── MAIN CONTENT ─── */}
+        <div style={main}>
+
+          {/* Profile / Objective */}
+          {s.details && (
+            <div style={{ marginBottom: 20 }}>
+              <div style={mainSectionTitle}>
+                <div style={iconCircle}>👤</div>
+                <span style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.18em', color: t.mainHeadingColor }}>Profile</span>
+                <div style={{ flex: 1, height: 1, backgroundColor: t.dividerColor }} />
+              </div>
+              <p style={{ fontSize: 10.5, lineHeight: 1.75, color: t.mainSubText, margin: 0, paddingLeft: 34 }}>{s.details}</p>
+            </div>
+          )}
+
+          {/* Work Experience */}
+          {ex.length > 0 && (
+            <div style={{ marginBottom: 20 }}>
+              <div style={mainSectionTitle}>
+                <div style={iconCircle}>💼</div>
+                <span style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.18em', color: t.mainHeadingColor }}>Work Experience</span>
+                <div style={{ flex: 1, height: 1, backgroundColor: t.dividerColor }} />
+              </div>
+              <div style={{ paddingLeft: 34, borderLeft: `2px solid ${t.dividerColor}`, marginLeft: 12, display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {ex.map((item, i) => (
+                  <div key={i} style={{ position: 'relative' }}>
+                    <div style={dot} />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', marginBottom: 2 }}>
+                      <h4 style={{ fontSize: 12, fontWeight: 700, color: t.mainHeadingColor, margin: 0 }}>{item.position}</h4>
+                      <span style={{ fontSize: 9, fontWeight: 600, color: t.mainMutedText, flexShrink: 0 }}>
+                        {fmtDate(item.startDate)} – {fmtDate(item.endDate, item.isCurrent)}
+                      </span>
+                    </div>
+                    <p style={{ fontSize: 10, fontWeight: 600, color: t.mainAccent, margin: '0 0 4px 0', opacity: 0.8 }}>
+                      {item.company}{item.location && ` · ${item.location}`}
+                    </p>
+                    {renderDetails(item.details, t.mainSubText)}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Education */}
+          {ed.length > 0 && (
+            <div style={{ marginBottom: 20 }}>
+              <div style={mainSectionTitle}>
+                <div style={iconCircle}>🎓</div>
+                <span style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.18em', color: t.mainHeadingColor }}>Education</span>
+                <div style={{ flex: 1, height: 1, backgroundColor: t.dividerColor }} />
+              </div>
+              <div style={{ paddingLeft: 34, borderLeft: `2px solid ${t.dividerColor}`, marginLeft: 12, display: 'flex', flexDirection: 'column', gap: 14 }}>
+                {ed.map((item, i) => (
+                  <div key={i} style={{ position: 'relative' }}>
+                    <div style={dot} />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', marginBottom: 2 }}>
+                      <h4 style={{ fontSize: 12, fontWeight: 700, color: t.mainHeadingColor, margin: 0 }}>
+                        {item.degree}{item.field && ` in ${item.field}`}
+                      </h4>
+                      <span style={{ fontSize: 9, fontWeight: 600, color: t.mainMutedText, flexShrink: 0 }}>
+                        {item.startYear ? `${fmtDate(item.startYear)} – ` : ""}{fmtDate(item.gradYear)}
+                      </span>
+                    </div>
+                    <p style={{ fontSize: 10, fontWeight: 600, color: t.mainAccent, margin: '0 0 3px 0', opacity: 0.8 }}>
+                      {item.institution}{item.location && ` · ${item.location}`}
+                    </p>
+                    <div style={{ fontSize: 10.5, color: t.mainSubText, lineHeight: 1.6 }}>
+                      {item.gpa && <p style={{ margin: 0 }}><span style={{ fontWeight: 600 }}>GPA:</span> {item.gpa}</p>}
+                      {item.activities && <p style={{ margin: '2px 0 0 0' }}>{item.activities}</p>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Projects */}
+          {proj.length > 0 && (
+            <div style={{ marginBottom: 20 }}>
+              <div style={mainSectionTitle}>
+                <div style={iconCircle}>🚀</div>
+                <span style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.18em', color: t.mainHeadingColor }}>Projects</span>
+                <div style={{ flex: 1, height: 1, backgroundColor: t.dividerColor }} />
+              </div>
+              <div style={{ paddingLeft: 34, borderLeft: `2px solid ${t.dividerColor}`, marginLeft: 12, display: 'flex', flexDirection: 'column', gap: 14 }}>
                 {proj.map((item, i) => (
-                  <div key={i} className="relative">
-                    <div className={`absolute top-2 w-[5px] h-[5px] ${theme.timelineDot} z-10`} style={{ left: "-28.5px" }} />
-                    <div className="mb-1 flex justify-between items-baseline flex-wrap">
-                      <p className={`text-[12px] font-bold ${theme.itemTitleColor}`}>
-                        {item.name} {item.tech && <span className={`font-normal ${theme.itemSubColor}`}>({item.tech})</span>}
-                      </p>
+                  <div key={i} style={{ position: 'relative' }}>
+                    <div style={dot} />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', marginBottom: 2 }}>
+                      <h4 style={{ fontSize: 12, fontWeight: 700, color: t.mainHeadingColor, margin: 0 }}>
+                        {item.name}
+                        {item.tech && <span style={{ fontWeight: 400, fontSize: 10, color: t.mainMutedText, marginLeft: 6 }}>({item.tech})</span>}
+                      </h4>
                       {item.url && (
-                        <a href={item.url.includes('http') ? item.url : `https://${item.url}`} target="_blank" rel="noopener noreferrer" className={`text-[10.5px] font-semibold text-blue-500 hover:text-blue-700 hover:underline flex-shrink-0 mb-1 sm:mb-0`}>
-                          View Project ↗
+                        <a href={item.url.includes('http') ? item.url : `https://${item.url}`} target="_blank" rel="noopener noreferrer"
+                          style={{ fontSize: 9, fontWeight: 600, color: t.mainAccent, textDecoration: 'none' }}>
+                          View ↗
                         </a>
                       )}
                     </div>
-                    {item.role && <p className={`text-[11px] font-semibold ${theme.itemSubColor} mb-1.5`}>Role: {item.role}</p>}
-                    <p className={`text-[12px] ${theme.itemBodyColor} leading-relaxed font-medium whitespace-pre-wrap`}>{item.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-          
-          {/* WORK EXPERIENCE */}
-          {ex.length > 0 && (
-            <div className="relative pl-12">
-              <div className={`absolute left-0 top-0 w-8 h-8 rounded-full ${theme.iconBg} ${theme.iconColor} flex items-center justify-center z-10 text-[10px]`}>🏢</div>
-              <div className={`absolute left-4 top-8 bottom-[20px] ${tplId === 'startup_vibe' ? theme.timelineLine : `w-[1.5px] ${theme.timelineLine}`}`} />
-              <div className="flex items-center gap-4 mb-4 pt-1.5">
-                <h3 className={`text-sm font-black uppercase tracking-[0.2em] ${theme.headingText}`}>Work Experience</h3>
-                <div className={`flex-1 h-[1.5px] ${theme.timelineDivider}`} />
-              </div>
-              <div className="space-y-6">
-                {ex.map((item, i) => (
-                  <div key={i} className="relative">
-                    <div className={`absolute top-2 w-[5px] h-[5px] ${theme.timelineDot} z-10`} style={{ left: "-28.5px" }} />
-                    <h4 className={`text-[12px] font-bold ${theme.itemTitleColor}`}>{item.position} <span className={`font-normal ${theme.itemSubColor}`}>| {item.company}</span></h4>
-                    <p className={`text-[10px] font-bold ${theme.itemSubColor} mb-1.5`}>{fmtDate(item.startDate)} - {fmtDate(item.endDate, item.isCurrent)} | {item.location}</p>
-                    <p className={`text-[12px] ${theme.itemBodyColor} leading-relaxed font-medium whitespace-pre-wrap`}>{item.details}</p>
+                    {item.role && <p style={{ fontSize: 10, fontWeight: 600, color: t.mainMutedText, margin: '0 0 3px 0' }}>Role: {item.role}</p>}
+                    {renderDetails(item.description, t.mainSubText)}
                   </div>
                 ))}
               </div>

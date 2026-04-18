@@ -11,6 +11,7 @@ export default function ProfileSettingsModal({ isOpen, onClose, onProfileUpdate 
   // General state
   const [profile, setProfile] = useState({ name: "", profile_pic: "" });
   const [previewPic, setPreviewPic] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
   const fileInputRef = useRef(null);
 
   // Email state
@@ -44,6 +45,7 @@ export default function ProfileSettingsModal({ isOpen, onClose, onProfileUpdate 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setSelectedFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewPic(reader.result);
@@ -61,14 +63,33 @@ export default function ProfileSettingsModal({ isOpen, onClose, onProfileUpdate 
     e.preventDefault();
     setIsLoading(true);
     try {
+      let finalPicUrl = previewPic;
+
+      // Upload file if user selected a new one
+      if (selectedFile) {
+        const fd = new FormData();
+        fd.append("file", selectedFile);
+        const uploadRes = await fetch("/api/upload", { method: "POST", body: fd });
+        
+        if (!uploadRes.ok) {
+          throw new Error("อัปโหลดรูปภาพไม่สำเร็จ");
+        }
+        
+        const { url } = await uploadRes.json();
+        finalPicUrl = url;
+      }
+
       await axios.patch("/api/users/profile", {
         name: profile.name,
-        profile_pic: previewPic
+        profile_pic: finalPicUrl
       });
+      
+      setSelectedFile(null);
       parseMessage("บันทึกข้อมูลเรียบร้อยแล้ว", "success");
       if (onProfileUpdate) onProfileUpdate();
     } catch (err) {
-      parseMessage("เกิดข้อผิดพลาด กรุณาลองใหม่", "error");
+      console.error(err);
+      parseMessage(err.message || "เกิดข้อผิดพลาด กรุณาลองใหม่", "error");
     } finally {
       setIsLoading(false);
     }

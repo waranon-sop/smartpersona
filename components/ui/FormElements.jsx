@@ -17,26 +17,28 @@ export const Lbl = ({ children }) => (
 /**
  * Standard input field with label
  */
-export const Input = ({ label, className = "", ...props }) => (
-  <div>
+export const Input = ({ label, className = "", error, ...props }) => (
+  <div className="flex flex-col gap-1">
     {label && <Lbl>{label}</Lbl>}
     <input 
-      className={`${INPUT_CLASSES} ${className}`} 
+      className={`${INPUT_CLASSES} ${error ? 'border-red-400 focus:ring-red-400' : ''} ${className}`} 
       {...props} 
     />
+    {error && <span className="text-[10px] font-medium text-red-500">{error}</span>}
   </div>
 );
 
 /**
  * Standard textarea with label
  */
-export const Textarea = ({ label, className = "", ...props }) => (
-  <div>
+export const Textarea = ({ label, className = "", error, ...props }) => (
+  <div className="flex flex-col gap-1">
     {label && <Lbl>{label}</Lbl>}
     <textarea 
-      className={`${INPUT_CLASSES} ${className}`} 
+      className={`${INPUT_CLASSES} ${error ? 'border-red-400 focus:ring-red-400' : ''} ${className}`} 
       {...props} 
     />
+    {error && <span className="text-[10px] font-medium text-red-500">{error}</span>}
   </div>
 );
 

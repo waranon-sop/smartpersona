@@ -84,7 +84,7 @@ export default function Home() {
             </div>
             <div className={styles.statDivider} />
             <div className={styles.stat}>
-              <strong><Counter to={2} /></strong>
+              <strong><Counter to={7} /></strong>
               <span>เทมเพลต</span>
             </div>
             <div className={styles.statDivider} />
@@ -128,7 +128,7 @@ export default function Home() {
           </div>
           {/* floating chips */}
           <div className={`${styles.chip} ${styles.chip1}`}>📄 PDF Export</div>
-          <div className={`${styles.chip} ${styles.chip2}`}>🎨 2 Templates</div>
+          <div className={`${styles.chip} ${styles.chip2}`}>🎨 7 Templates</div>
           <div className={`${styles.chip} ${styles.chip3}`}>⚡ Save Auto</div>
         </div>
       </section>
@@ -199,7 +199,7 @@ export default function Home() {
           <div className={styles.footerLogoIcon}>S</div>
           <span>Smart Persona</span>
         </div>
-        <p className={styles.footerText}>© 2025 Smart Persona · Resume Builder ฟรีสำหรับทุกคน</p>
+        <p className={styles.footerText}>© {new Date().getFullYear()} Smart Persona · Resume Builder ฟรีสำหรับทุกคน</p>
       </footer>
     </div>
   );

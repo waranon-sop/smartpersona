@@ -2,6 +2,14 @@
 
 โปรเจกต์ Next.js สำหรับสร้างและจัดการ Resume อัจฉริยะ
 
+## 🛠️ Tech Stack
+- **Framework:** Next.js (App Router)
+- **Styling:** Tailwind CSS
+- **Database:** MySQL (รันผ่าน Docker)
+- **Authentication:** JWT (JSON Web Tokens) & bcryptjs
+- **Validation:** Zod
+- **Drag & Drop:** @dnd-kit
+
 ---
 
 ## 🚀 การติดตั้งสำหรับผู้ Clone (First-Time Setup)
@@ -94,10 +102,13 @@ docker compose -f docker-compose-mysql-phpmyadmin.yaml up -d
 ถ้าคุณเพิ่ม/ลบ/แก้ไขข้อมูลใน Database และต้องการให้คนอื่นได้รับการเปลี่ยนแปลงด้วย:
 
 ```bash
-# 1. Dump ข้อมูลปัจจุบันลงไฟล์ init.sql
+# 1. เคลียร์ข้อมูลรูปภาพ Base64 ออกก่อน (เพื่อให้ไฟล์ Dump ไม่ใหญ่เกินไป)
+node clear_base64.js
+
+# 2. Dump ข้อมูลปัจจุบันลงไฟล์ init.sql
 npm run db:dump
 
-# 2. Commit และ Push ไฟล์ init.sql ที่อัปเดต
+# 3. Commit และ Push ไฟล์ init.sql ที่อัปเดต
 git add init.sql
 git commit -m "chore: update database dump"
 git push
@@ -111,6 +122,17 @@ docker compose -f docker-compose-mysql-phpmyadmin.yaml down
 Remove-Item -Recurse -Force mysql-data   # Windows
 docker compose -f docker-compose-mysql-phpmyadmin.yaml up -d
 ```
+
+---
+
+## 🔧 สคริปต์ตัวช่วย (Utility Scripts)
+
+ในโปรเจกต์นี้มีไฟล์สคริปต์ `.js` สำหรับช่วยจัดการฐานข้อมูล ดังนี้:
+
+- `node clear_base64.js` : ลบข้อมูลรูปภาพที่เป็น base64 ออกจากฐานข้อมูล (ควรทำก่อน dump เพื่อลดขนาดไฟล์)
+- `node migrate_db.js` : ใช้สำหรับรันคำสั่ง Migration หรืออัปเดต Index โครงสร้างตาราง (เช่น `db-indexes.sql`)
+- `node check_db.js` : ใช้ตรวจสอบสถานะการเชื่อมต่อของ Database
+- `npm run db:dump` : (เรียกใช้ `dump_db.js`) ส่งออกข้อมูล Database ทั้งหมดไปที่ `init.sql`
 
 ---
 
