@@ -35,6 +35,20 @@ export async function POST(request) {
       );
     }
 
+    // 6. ✅ ตรวจสอบสถานะบัญชีก่อนออก Token
+    if (user.status === "Inactive") {
+      return NextResponse.json(
+        { message: "บัญชีนี้ถูกปิดการใช้งานชั่วคราว กรุณาติดต่อผู้ดูแลระบบ" },
+        { status: 403 },
+      );
+    }
+    if (user.status === "Suspended") {
+      return NextResponse.json(
+        { message: "บัญชีนี้ถูกระงับการใช้งาน กรุณาติดต่อผู้ดูแลระบบ" },
+        { status: 403 },
+      );
+    }
+
     // 6. สร้าง JWT Token (เพิ่ม role เข้าไปใน payload)
     const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, {
       expiresIn: "1h",

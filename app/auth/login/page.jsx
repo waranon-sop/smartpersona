@@ -48,9 +48,16 @@ function LoginContent() {
       })
       .catch((err) => {
         const status = err.response?.status;
-        if (status === 404) setErrors({ username: "Username not found" });
-        else if (status === 403) setErrors({ password: "Incorrect password" });
-        else setErrors({ form: "Something went wrong." });
+        const serverMessage = err.response?.data?.message;
+        if (status === 404) setErrors({ username: "ไม่พบชื่อผู้ใช้หรืออีเมลนี้ในระบบ" });
+        else if (status === 403) {
+          // ใช้ message จากเซิร์ฟเวอร์ถ้ามี (กรณีบัญชีถูกระงับ/ปิด) มิเช่นนั้นใช้ข้อความ default
+          const msg = serverMessage && serverMessage !== "Invalid password"
+            ? serverMessage
+            : "รหัสผ่านไม่ถูกต้อง";
+          setErrors({ form: msg });
+        }
+        else setErrors({ form: "เกิดข้อผิดพลาด กรุณาลองอีกครั้ง" });
       })
       .finally(() => setIsLoading(false));
   };

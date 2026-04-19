@@ -1,5 +1,6 @@
-import pool from '@/lib/db';
-import { NextResponse } from 'next/server';
+import pool from "@/lib/db";
+import { NextResponse } from "next/server";
+import { getCurrentUser } from "@/lib/session";
 
 /**
  * @swagger
@@ -27,15 +28,25 @@ import { NextResponse } from 'next/server';
  */
 export async function GET(request, { params }) {
   const { id } = await params;
+  const currentUser = await getCurrentUser();
+  if (!currentUser || currentUser.role?.toLowerCase() !== "admin") {
+    return NextResponse.json(
+      { error: "Forbidden: Admins only" },
+      { status: 403 },
+    );
+  }
   try {
-    const [rows] = await pool.query('SELECT * FROM users WHERE id = ?', [id]);
+    const [rows] = await pool.query("SELECT * FROM users WHERE id = ?", [id]);
     if (rows.length === 0) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
     return NextResponse.json(rows[0]);
   } catch (error) {
     console.error(`GET /api/admin/users/${id} error:`, error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -66,23 +77,37 @@ export async function GET(request, { params }) {
  */
 export async function PUT(request, { params }) {
   const { id } = await params;
+  const currentUser = await getCurrentUser();
+  if (!currentUser || currentUser.role?.toLowerCase() !== "admin") {
+    return NextResponse.json(
+      { error: "Forbidden: Admins only" },
+      { status: 403 },
+    );
+  }
   try {
     const body = await request.json();
     const { name, email, role, status } = body;
 
+    const emailRe = /^\S+@\S+\.\S+$/;
+    if (!emailRe.test(email))
+      return NextResponse.json({ error: "Invalid email" }, { status: 400 });
+
     const [result] = await pool.query(
-      'UPDATE users SET name = ?, email = ?, role = ?, status = ? WHERE id = ?',
-      [name, email, role, status, id]
+      "UPDATE users SET name = ?, email = ?, role = ?, status = ? WHERE id = ?",
+      [name, email, role, status, id],
     );
 
     if (result.affectedRows === 0) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ message: 'User updated successfully' });
+    return NextResponse.json({ message: "User updated successfully" });
   } catch (error) {
     console.error(`PUT /api/admin/users/${id} error:`, error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -107,17 +132,27 @@ export async function PUT(request, { params }) {
  */
 export async function DELETE(request, { params }) {
   const { id } = await params;
+  const currentUser = await getCurrentUser();
+  if (!currentUser || currentUser.role?.toLowerCase() !== "admin") {
+    return NextResponse.json(
+      { error: "Forbidden: Admins only" },
+      { status: 403 },
+    );
+  }
   try {
-    const [result] = await pool.query('DELETE FROM users WHERE id = ?', [id]);
+    const [result] = await pool.query("DELETE FROM users WHERE id = ?", [id]);
 
     if (result.affectedRows === 0) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ message: 'User deleted successfully' });
+    return NextResponse.json({ message: "User deleted successfully" });
   } catch (error) {
     console.error(`DELETE /api/admin/users/${id} error:`, error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -152,21 +187,31 @@ export async function DELETE(request, { params }) {
  */
 export async function PATCH(request, { params }) {
   const { id } = await params;
+  const currentUser = await getCurrentUser();
+  if (!currentUser || currentUser.role?.toLowerCase() !== "admin") {
+    return NextResponse.json(
+      { error: "Forbidden: Admins only" },
+      { status: 403 },
+    );
+  }
   try {
     const { status } = await request.json();
 
     const [result] = await pool.query(
-      'UPDATE users SET status = ? WHERE id = ?',
-      [status, id]
+      "UPDATE users SET status = ? WHERE id = ?",
+      [status, id],
     );
 
     if (result.affectedRows === 0) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ message: 'Status updated successfully' });
+    return NextResponse.json({ message: "Status updated successfully" });
   } catch (error) {
     console.error(`PATCH /api/admin/users/${id} error:`, error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

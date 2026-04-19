@@ -32,6 +32,9 @@ export async function GET(request) {
 
     const row = results[0];
     
+    // ✅ Increment view count every time the resume is loaded
+    await query("UPDATE resumes SET views = views + 1 WHERE id = ?", [resumeId]);
+
     // Parse JSON strings — DB stores "education"/"experience" columns (singular)
     // but the frontend ResumeContext uses "educations"/"experiences" (plural arrays)
     const parseField = (raw, fallback) =>
@@ -43,7 +46,6 @@ export async function GET(request) {
     // Normalise to array (new saves are arrays; old saves may be a single object)
     const educations  = Array.isArray(rawEducation)  ? rawEducation  : rawEducation  ? [rawEducation]  : [];
     const experiences = Array.isArray(rawExperience) ? rawExperience : rawExperience ? [rawExperience] : [];
-
     const data = {
       config:      parseField(row.config,   { template: row.template || "classic" }),
       personal:    parseField(row.personal, { firstName: "", lastName: "", email: "", phone: "", address: "", profilePic: "" }),

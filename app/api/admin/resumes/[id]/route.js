@@ -1,5 +1,6 @@
-import pool from '@/lib/db';
-import { NextResponse } from 'next/server';
+import pool from "@/lib/db";
+import { NextResponse } from "next/server";
+import { getCurrentUser } from "@/lib/session";
 
 /**
  * @swagger
@@ -27,23 +28,33 @@ import { NextResponse } from 'next/server';
  */
 export async function GET(request, { params }) {
   const { id } = await params;
+  const currentUser = await getCurrentUser();
+  if (!currentUser || currentUser.role?.toLowerCase() !== "admin") {
+    return NextResponse.json(
+      { error: "Forbidden: Admins only" },
+      { status: 403 },
+    );
+  }
   try {
     const [rows] = await pool.query(
       `SELECT r.*, u.name as user_name, u.email as user_email
        FROM resumes r
        LEFT JOIN users u ON r.user_id = u.id
        WHERE r.id = ?`,
-      [id]
+      [id],
     );
 
     if (rows.length === 0) {
-      return NextResponse.json({ error: 'Resume not found' }, { status: 404 });
+      return NextResponse.json({ error: "Resume not found" }, { status: 404 });
     }
 
     return NextResponse.json(rows[0]);
   } catch (error) {
     console.error(`GET /api/admin/resumes/${id} error:`, error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -69,16 +80,26 @@ export async function GET(request, { params }) {
  */
 export async function DELETE(request, { params }) {
   const { id } = await params;
+  const currentUser = await getCurrentUser();
+  if (!currentUser || currentUser.role?.toLowerCase() !== "admin") {
+    return NextResponse.json(
+      { error: "Forbidden: Admins only" },
+      { status: 403 },
+    );
+  }
   try {
-    const [result] = await pool.query('DELETE FROM resumes WHERE id = ?', [id]);
+    const [result] = await pool.query("DELETE FROM resumes WHERE id = ?", [id]);
 
     if (result.affectedRows === 0) {
-      return NextResponse.json({ error: 'Resume not found' }, { status: 404 });
+      return NextResponse.json({ error: "Resume not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ message: 'Resume deleted successfully' });
+    return NextResponse.json({ message: "Resume deleted successfully" });
   } catch (error) {
     console.error(`DELETE /api/admin/resumes/${id} error:`, error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

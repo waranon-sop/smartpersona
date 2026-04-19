@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { query } from "@/lib/db";
+import { addNotification } from "@/app/admin/actions/notificationActions";
 
 export async function POST(request) {
   try {
@@ -25,6 +26,9 @@ export async function POST(request) {
     if (userId) {
       const emailSql = "INSERT INTO user_emails (user_id, email, is_primary) VALUES (?, ?, ?)";
       await query(emailSql, [userId, email, true]);
+
+      // ✅ Trigger Admin Notification
+      await addNotification(`มีผู้สมัครสมาชิกใหม่: ${username}`, "user", "/admin/users");
     }
 
     return NextResponse.json({ message: "Success" }, { status: 200 });

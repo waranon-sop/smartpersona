@@ -1,5 +1,6 @@
 import { getCurrentUser } from "@/lib/session";
 import { redirect } from "next/navigation";
+import { getUnreadNotifications } from './actions/notificationActions';
 import AdminLayoutClient from "./AdminLayoutClient";
 
 /**
@@ -18,5 +19,7 @@ export default async function AdminLayout({ children }) {
     redirect("/create/dashboard");
   }
 
-  return <AdminLayoutClient>{children}</AdminLayoutClient>;
+  const initialNotifications = await getUnreadNotifications();
+
+  return <AdminLayoutClient user={user} initialNotifications={initialNotifications}>{children}</AdminLayoutClient>;
 }

@@ -1,7 +1,8 @@
-import pool from '@/lib/db';
-import { NextResponse } from 'next/server';
+import pool from "@/lib/db";
+import { NextResponse } from "next/server";
+import { getCurrentUser } from "@/lib/session";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 /**
  * @swagger
@@ -33,32 +34,51 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET() {
   try {
+    const currentUser = await getCurrentUser();
+    if (!currentUser || currentUser.role?.toLowerCase() !== "admin") {
+      return NextResponse.json(
+        { error: "Forbidden: Admins only" },
+        { status: 403 },
+      );
+    }
     // รัน queries พร้อมกันด้วย Promise.all
     const [
       [userRows],
       [resumeRows],
-      [usersWithResumesRows],
-      [recentRows],
+      [topTemplateRows],
+      [todayRows],
+      [recentRows]
     ] = await Promise.all([
-      pool.query('SELECT COUNT(*) as count FROM users'),
-      pool.query('SELECT COUNT(*) as count FROM resumes'),
-      pool.query('SELECT COUNT(DISTINCT user_id) as count FROM resumes'),
-      pool.query('SELECT id, name, email, status, created_at FROM users ORDER BY created_at DESC LIMIT 4'),
+      pool.query("SELECT COUNT(*) as count FROM users"),
+      pool.query("SELECT COUNT(*) as count FROM resumes"),
+      pool.query("SELECT template, COUNT(*) as count FROM resumes GROUP BY template ORDER BY count DESC LIMIT 1"),
+      pool.query("SELECT COUNT(*) as count FROM resumes WHERE created_at >= CURDATE()"),
+      pool.query("SELECT id, name, email, status, created_at FROM users ORDER BY created_at DESC LIMIT 4"),
     ]);
 
-    return NextResponse.json({
-      totalUsers: userRows[0].count,
-      totalResumes: resumeRows[0].count,
-      totalUsersWithResumes: usersWithResumesRows[0].count,
-      recentUsers: recentRows,
-    }, {
-      headers: {
-        // cache 30 วินนาที (ตรงกันกับ polling interval)
-        'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=10',
+    const topTemplate = topTemplateRows[0]?.template || "ไม่มีข้อมูล";
+    const resumesToday = todayRows[0]?.count || 0;
+
+    return NextResponse.json(
+      {
+        totalUsers: userRows[0].count,
+        totalResumes: resumeRows[0].count,
+        topTemplate: topTemplate,
+        resumesToday: resumesToday,
+        recentUsers: recentRows,
       },
-    });
+      {
+        headers: {
+          // cache 30 วินนาที (ตรงกันกับ polling interval)
+          "Cache-Control": "public, s-maxage=30, stale-while-revalidate=10",
+        },
+      },
+    );
   } catch (error) {
-    console.error('GET /api/admin/stats error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error("GET /api/admin/stats error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

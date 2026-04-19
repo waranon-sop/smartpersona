@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
 /**
- * Edge Middleware (Proxy.js)
+ * Next.js Middleware
  * รับหน้าที่ด่านหน้า (Firewall) ตรวจสอบและสกัดกั้นการเข้าใช้งาน Page/API เส้นทางสำคัญ
  * ป้องกันการเข้าถึงจากผู้ใช้ที่ไม่ล็อกอิน หรือพยายามข้ามสิทธิ์ Admin
  */
@@ -42,12 +42,12 @@ export async function proxy(request) {
   // --------- จัดการส่วนคนล็อกอินแล้ว ---------
   let payload;
   try {
-    // 2. Verify Token using jose (Edge-compatible) instead of API fetch
+    // 2. Verify Token using jose (Edge-compatible)
     const secret = new TextEncoder().encode(process.env.JWT_SECRET);
     const { payload: decodedPayload } = await jwtVerify(cookie, secret);
     payload = decodedPayload;
   } catch (err) {
-    console.error("JWT Verify Error in Proxy:", err.message);
+    console.error("JWT Verify Error in Middleware:", err.message);
     if (isApiRoute) {
       return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 });
     }
@@ -62,7 +62,7 @@ export async function proxy(request) {
   // 3. ถ้าล็อกอินแล้วและจะพยายามเข้าหน้า Auth อีก ให้ดีดกลับไป Dashboard
   if (isAuthRoute) {
     if (userRole === "admin") {
-      return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+      return NextResponse.redirect(new URL("/admin", request.url));
     }
     return NextResponse.redirect(new URL("/create/dashboard", request.url));
   }

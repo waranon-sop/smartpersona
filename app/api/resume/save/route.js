@@ -3,6 +3,7 @@ import { query } from "@/lib/db";
 import { v4 as uuidv4 } from "uuid";
 import { getCurrentUser } from "@/lib/session";
 import { z } from "zod";
+import { addNotification } from "@/app/admin/actions/notificationActions";
 
 // ตรวจสอบความถูกต้องและประเภทข้อมูลด้วย Zod
 const BaseInfoSchema = z.record(z.any()).nullable().optional();
@@ -112,6 +113,9 @@ export async function POST(request) {
           JSON.stringify(projects || []),
         ]
       );
+
+      // ✅ Trigger Admin Notification
+      await addNotification(`มีการสร้างเรซูเม่ใหม่: ${title}`, "resume", `/admin/resumes/${newId}`);
 
       return NextResponse.json(
         { message: "Created", resumeId: newId },
