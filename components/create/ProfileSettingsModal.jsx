@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import axios from "axios";
 
 export default function ProfileSettingsModal({ isOpen, onClose, onProfileUpdate }) {
   const [activeTab, setActiveTab] = useState("general");
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
+  const [mounted, setMounted] = useState(false);
 
   // General state
   const [profile, setProfile] = useState({ name: "", profile_pic: "" });
@@ -21,6 +23,7 @@ export default function ProfileSettingsModal({ isOpen, onClose, onProfileUpdate 
   const [passwords, setPasswords] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" });
 
   useEffect(() => {
+    setMounted(true);
     if (isOpen) {
       fetchProfileData();
     }
@@ -149,9 +152,9 @@ export default function ProfileSettingsModal({ isOpen, onClose, onProfileUpdate 
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
-  return (
+  const modalContent = (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-200 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col md:flex-row h-[600px] max-h-[90vh]">
         
@@ -361,4 +364,6 @@ export default function ProfileSettingsModal({ isOpen, onClose, onProfileUpdate 
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }

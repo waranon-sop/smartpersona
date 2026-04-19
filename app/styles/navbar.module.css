@@ -77,6 +77,9 @@
   font-size: 14px;
   border-radius: 12px;
   transition: all 0.2s ease;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
 .navLink:hover {
@@ -90,6 +93,12 @@
 }
 
 .right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.desktopOnly {
   display: flex;
   align-items: center;
   gap: 16px;
@@ -138,13 +147,69 @@
   transform: translateY(-2px);
 }
 
+/* Hidden on desktop, shown on mobile */
+.mobileToggle {
+  display: none;
+  background: transparent;
+  border: none;
+  color: #0f172a;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 10px;
+  transition: background 0.2s;
+}
+
+.mobileOnly {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .navbar, .navbar.scrolled {
     padding: 14px 20px;
   }
 
-  .navMenu {
+  .desktopOnly {
     display: none;
+  }
+
+  .mobileToggle {
+    display: block;
+    z-index: 101;
+  }
+
+  .mobileToggle:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  .navMenu {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 80%;
+    height: 100vh;
+    background: white;
+    flex-direction: column;
+    padding: 100px 30px;
+    gap: 15px;
+    transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.05);
+    z-index: 100;
+  }
+
+  .navMenu.mobileOpen {
+    right: 0;
+  }
+
+  .mobileOnly {
+    display: block;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #f1f5f9;
+  }
+
+  .navLink {
+    font-size: 18px;
+    padding: 15px 20px;
   }
 
   .logoText {

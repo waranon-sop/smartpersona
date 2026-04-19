@@ -184,44 +184,64 @@ export default function BrowsePublicResumes() {
             </div>
           </div>
 
-          {/* Filter row */}
-          <div className="px-5 pb-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="flex items-center gap-2 flex-wrap">
-              <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
-                <Filter size={13} />
-                เทมเพลต:
+            {/* Filter row with Pills */}
+            <div className="px-5 pb-5 flex flex-col items-start gap-4">
+              <div className="flex items-center gap-2 text-xs text-gray-500 font-bold mb-1">
+                <Filter size={14} />
+                กรองตามเทมเพลต:
               </div>
-              <select
-                value={templateFilter}
-                onChange={(e) => setTemplateFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-200 rounded-lg bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-400 cursor-pointer"
-              >
-                <option value="all">ทั้งหมด</option>
-                {Object.entries(templateLabels).map(([key, label]) => (
-                  <option key={key} value={key}>{label}</option>
-                ))}
-              </select>
+              <div className="flex flex-wrap gap-2 w-full">
+                <button
+                  type="button"
+                  onClick={() => setTemplateFilter("all")}
+                  className={`px-4 py-2 rounded-full text-xs font-bold transition-all border ${
+                    templateFilter === "all"
+                      ? "bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-200"
+                      : "bg-white text-gray-600 border-gray-200 hover:border-indigo-300 hover:bg-indigo-50"
+                  }`}
+                >
+                  ทั้งหมด
+                </button>
+                {Object.entries(templateLabels).map(([key, label]) => {
+                  const isActive = templateFilter === key;
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setTemplateFilter(key)}
+                      className={`px-4 py-2 rounded-full text-xs font-bold transition-all border ${
+                        isActive
+                          ? "bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-200"
+                          : "bg-white text-gray-600 border-gray-200 hover:border-indigo-300 hover:bg-indigo-50"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
 
               {hasActiveFilters && (
                 <button type="button" onClick={clearFilters}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-red-500 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors">
-                  <X size={12} />
-                  ล้างตัวกรอง
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-100 transition-colors mt-2">
+                  <X size={14} />
+                  ล้างตัวกรองทั้งหมด
                 </button>
               )}
             </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg active:scale-95 disabled:opacity-50"
-              style={{ background: "linear-gradient(135deg, #667eea, #764ba2)" }}
-            >
-              <Sparkles size={14} />
-              {loading ? "กำลังค้นหา..." : "ค้นหา Resume"}
-            </button>
-          </div>
-        </form>
+            
+            <div className="px-5 pb-5 flex justify-end">
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white shadow-md shadow-indigo-600/20 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-600/30 active:scale-95 disabled:opacity-50"
+                style={{ background: "linear-gradient(135deg, #4F46E5, #9333EA)" }}
+              >
+                <Sparkles size={16} />
+                {loading ? "กำลังค้นหา..." : "ค้นหา Resume"}
+              </button>
+            </div>
+          </form>
 
         {/* Results area */}
         <div>

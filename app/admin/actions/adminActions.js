@@ -61,8 +61,8 @@ export async function createUser(formData) {
       throw new Error("username, email and password are required");
     const emailRe = /^\S+@\S+\.\S+$/;
     if (!emailRe.test(email)) throw new Error("Invalid email format");
-    if (String(password).length < 8)
-      throw new Error("Password must be at least 8 characters");
+    if (String(password).length < 6)
+      throw new Error("Password must be at least 6 characters");
     const allowedRoles = ["admin", "user", "Admin", "User"];
     const allowedStatus = ["Active", "Inactive", "Suspended"];
     if (role && !allowedRoles.includes(role)) throw new Error("Invalid role");
@@ -75,7 +75,8 @@ export async function createUser(formData) {
     );
   } catch (error) {
     console.error("Failed to create user:", error);
-    throw new Error(error.message || "Failed to create user");
+    // Redirect back with error message instead of crashing
+    redirect("/admin/users/new?error=" + encodeURIComponent(error.message));
   }
 
   revalidatePath("/admin/users");
@@ -137,14 +138,13 @@ export async function deleteUser(id) {
     isSuccess = true;
   } catch (error) {
     console.error("Failed to delete user:", error);
+    redirect("/admin/users?error=" + encodeURIComponent(error.message));
   }
 
   if (isSuccess) {
     revalidatePath("/admin/users");
     revalidatePath("/admin");
     redirect("/admin/users?success=User+deleted+successfully&t=" + Date.now());
-  } else {
-    redirect("/admin/users?error=Failed+to+delete+user");
   }
 }
 
@@ -182,14 +182,13 @@ export async function deleteResume(id) {
     isSuccess = true;
   } catch (error) {
     console.error("Failed to delete resume:", error);
+    redirect("/admin/resumes?error=" + encodeURIComponent(error.message));
   }
 
   if (isSuccess) {
     revalidatePath("/admin/resumes");
     revalidatePath("/admin");
     redirect("/admin/resumes?success=Resume+deleted+successfully&t=" + Date.now());
-  } else {
-    redirect("/admin/resumes?error=Failed+to+delete+resume");
   }
 }
 
@@ -295,9 +294,17 @@ export async function toggleQuickSetting(key, stringValue) {
 export async function performLockdown() {
   const currentUser = await getCurrentUser();
   if (currentUser?.role?.toLowerCase() !== "admin")
-    throw new Error("Unauthorized");
+    return { success: false, error: "Unauthorized" };
 
   try {
+    // Ensure table exists
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS settings (
+        setting_key VARCHAR(50) PRIMARY KEY,
+        setting_value TEXT
+      )
+    `);
+
     // Soft Lockdown: Maintenance Mode ON, Registration OFF
     await pool.query(
       "INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?",

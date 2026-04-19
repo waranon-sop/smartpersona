@@ -19,6 +19,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { GripVertical } from "lucide-react";
 
 export function SortableList({ items, onReorder, children }) {
+  const dndId = React.useId();
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -33,7 +34,7 @@ export function SortableList({ items, onReorder, children }) {
   const handleDragEnd = (event) => {
     const { active, over } = event;
 
-    if (active.id !== over.id) {
+    if (active && over && active.id !== over.id) {
       const oldIndex = items.findIndex((item) => item.id === active.id);
       const newIndex = items.findIndex((item) => item.id === over.id);
       onReorder(oldIndex, newIndex);
@@ -42,6 +43,7 @@ export function SortableList({ items, onReorder, children }) {
 
   return (
     <DndContext
+      id={dndId}
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}

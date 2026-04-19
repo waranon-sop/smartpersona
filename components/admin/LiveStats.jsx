@@ -8,7 +8,7 @@ export default function LiveStats({ initialStats }) {
   const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
-    const POLL_INTERVAL = 30000;
+    const POLL_INTERVAL = 5000; // ปรับให้เร็วขึ้นเป็น 5 วินาทีเพื่อความ Real-time สุดๆ
 
     const fetchStats = async () => {
       if (document.hidden) return;

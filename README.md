@@ -148,6 +148,20 @@ smartpersona/
 
 ---
 
+## 🔑 ข้อมูลสำหรับทดสอบ (Test Credentials)
+
+หากต้องการทดสอบระบบ สามารถล็อกอินด้วยบัญชีเหล่านี้ (หรือสมัครใหม่ได้ที่หน้าเว็บ):
+
+**Admin Account (สำหรับเข้า Dashboard แอดมิน):**
+- **Email:** admin@example.com (หรือใส่อีเมลแอดมินที่มีในฐานข้อมูล)
+- **Password:** 123456
+
+**User Account (บัญชีผู้ใช้ทั่วไป):**
+- **Email:** user@example.com
+- **Password:** 123456
+
+---
+
 ## Learn More
 
 - [Next.js Documentation](https://nextjs.org/docs)

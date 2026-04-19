@@ -38,6 +38,11 @@ const defaultData = () => ({
 export function ResumeProvider({ children }) {
   const [resumeId, setResumeId] = useState(null);
   const [data, setData] = useState(defaultData());
+  const [lang, setLang] = useState("th");
+
+  const toggleLang = useCallback(() => {
+    setLang((prev) => (prev === "th" ? "en" : "th"));
+  }, []);
 
   // Update plain section (personal, summary, skills, config)
   const updateData = useCallback((section, field, value) => {
@@ -130,6 +135,8 @@ export function ResumeProvider({ children }) {
       resumeId,
       setResumeId,
       resetResume,
+      lang,
+      toggleLang,
     }}>
       {children}
     </ResumeContext.Provider>

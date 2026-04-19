@@ -29,31 +29,6 @@ export default async function ResumesManagementPage({ searchParams }) {
       whereClause += " AND (r.title LIKE ? OR u.name LIKE ? OR r.id LIKE ?)";
       queryParams.push(`%${search}%`, `%${search}%`, `%${search}%`);
     }
-    if (template && template !== "ทุกรูปแบบ") {
-      whereClause += " AND r.template = ?";
-      // Because we map "All Templates" to "ทุกรูปแบบ" in UI, value in select should match.
-      // Notice we keep the values in english to match DB easily, except we changed UI text value to "All Templates".
-    }
-    if (status && status !== "All Status") {
-      whereClause += " AND r.status = ?";
-      queryParams.push(status);
-    }
-
-    const [countRows] = await pool.query(
-      `SELECT COUNT(*) as count FROM resumes r LEFT JOIN users u ON r.user_id = u.id ${template && template !== "All Templates" ? " AND r.template = ?" : ""}`,
-      template && template !== "All Templates" ? [...queryParams, template] : queryParams,
-    );
-    // Since I changed where logic above for template, I'll rewrite it cleanly without nested conditionals down below
-  } catch(e) {}
-
-  try {
-    let whereClause = "WHERE 1=1";
-    const queryParams = [];
-
-    if (search) {
-      whereClause += " AND (r.title LIKE ? OR u.name LIKE ? OR r.id LIKE ?)";
-      queryParams.push(`%${search}%`, `%${search}%`, `%${search}%`);
-    }
     if (template && template !== "All Templates") {
       whereClause += " AND r.template = ?";
       queryParams.push(template);
@@ -102,11 +77,10 @@ export default async function ResumesManagementPage({ searchParams }) {
         </div>
         
         <a
-          href="/api/admin/export-resumes"
-          download
+          href="/api/admin/export/resumes"
           className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-xl text-sm font-semibold shadow-sm transition-all"
         >
-          <Download size={18} /> ส่งออกข้อมูล
+          <Download size={18} /> Export CSV
         </a>
       </section>
 

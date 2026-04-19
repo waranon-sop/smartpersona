@@ -7,7 +7,7 @@ import { Save, Download, Share2, Check, ZoomIn, ZoomOut, Loader2 } from "lucide-
 
 import { useResume } from "@/contexts/ResumeContext";
 import ResumePreview from "@/components/create/ResumePreview";
-import { incrementResumeView, incrementResumeDownload } from "@/app/actions/adminActions";
+import { incrementResumeView, incrementResumeDownload } from "@/app/actions/statsActions";
 
 // Modular Sections
 import PersonalInfoSection from "@/components/features/create/personalInfo/sections/PersonalInfoSection";
@@ -223,8 +223,9 @@ export default function ResumeBuilder() {
         body: JSON.stringify({ resumeId, data }),
       });
       if (!res.ok) { 
+        const errData = await res.json().catch(() => ({}));
         setSaveStatus("error"); 
-        toast.error("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+        toast.error(`เกิดข้อผิดพลาดในการบันทึกข้อมูล: ${errData.detail || errData.message || ""}`);
         setTimeout(() => setSaveStatus("idle"), 3000); 
         return; 
       }
@@ -243,14 +244,46 @@ export default function ResumeBuilder() {
   };
 
   // ── copy link ──
-  const handleCopy = () => {
-    if (!resumeId) return;
+  const handleCopy = async () => {
     if (!validateForm()) {
       toast.error("กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วนก่อนสร้างลิงก์สำหรับแชร์");
       return;
     }
-    navigator.clipboard.writeText(`${window.location.origin}/resume/${resumeId}`).then(() => {
+
+    let currentId = resumeId;
+
+    if (!currentId) {
+      if (!data.config?.template) {
+        toast.error("กรุณาเลือกเทมเพลตก่อนทำการบันทึกและแชร์");
+        return;
+      }
+      toast.loading("กำลังบันทึกข้อมูลเพื่อสร้างลิงก์...", { id: "share-save" });
+      setSaveStatus("saving");
+      try {
+        const res = await fetch("/api/resume/save", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ resumeId: null, data }),
+        });
+        if (!res.ok) throw new Error("Save failed");
+        const result = await res.json();
+        currentId = result.resumeId;
+        setResumeId(currentId);
+        setSaveStatus("saved");
+        setLastSavedDataStr(JSON.stringify(data));
+        setTimeout(() => setSaveStatus("idle"), 3000);
+        toast.success("บันทึกข้อมูลสำเร็จ!", { id: "share-save" });
+      } catch (err) {
+        setSaveStatus("error");
+        toast.error("เกิดข้อผิดพลาดในการบันทึกข้อมูล", { id: "share-save" });
+        setTimeout(() => setSaveStatus("idle"), 3000);
+        return;
+      }
+    }
+
+    navigator.clipboard.writeText(`${window.location.origin}/resume/${currentId}`).then(() => {
       setCopied(true); setTimeout(() => setCopied(false), 3000);
+      toast.success("คัดลอกลิงก์เรียบร้อยแล้ว!");
     });
   };
 
@@ -358,69 +391,76 @@ export default function ResumeBuilder() {
             <ProgressBar data={data} />
 
             {/* Glassmorphic Action Bar */}
-            <div className="flex items-center justify-between gap-2 px-4 py-3 rounded-2xl shadow-md flex-wrap"
-              style={{ background: "rgba(255,255,255,0.85)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.7)" }}>
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col xl:flex-row items-center justify-between gap-4 px-6 py-4 rounded-2xl shadow-sm border border-indigo-100 bg-white/90 backdrop-blur-xl">
+              
+              {/* Left: Document Actions */}
+              <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto pb-2 xl:pb-0">
                 <button onClick={() => handleNavigate(`/create/templates${resumeId ? `?resumeId=${resumeId}` : ''}`)}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 transition-all shadow-sm">
-                  🎨 เปลี่ยนเทมเพลต
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-colors">
+                  <span className="text-lg">🎨</span> เปลี่ยนเทมเพลต
                 </button>
-                <button onClick={handleCopy} disabled={!resumeId}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all hover:scale-105 active:scale-95 disabled:opacity-40"
-                style={copiedLink
-                  ? { background: "#d1fae5", color: "#059669", border: "1px solid #6ee7b7" }
-                  : { background: "#f3f4f6", color: "#374151", border: "1px solid #e5e7eb" }}>
-                {copiedLink ? <Check size={12} /> : <span className="flex items-center gap-1.5"><Share2 size={12} />แชร์ลิงก์</span>}
-                {copiedLink && "คัดลอกแล้ว!"}
+                
+                <button onClick={handleCopy}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all hover:opacity-80"
+                  style={copiedLink
+                    ? { background: "#dcfce7", color: "#166534" }
+                    : { background: "#f3f4f6", color: "#4b5563" }}>
+                  {copiedLink ? <Check size={16} /> : <Share2 size={16} />}
+                  {copiedLink ? "คัดลอกแล้ว!" : "แชร์ลิงก์"}
                 </button>
 
-                {/* Auto-save indicator */}
-                {autoSaveStatus !== "idle" && (
-                  <span className="flex items-center gap-1 text-[10px] font-medium text-gray-400 ml-1">
-                    {autoSaveStatus === "saving" && <><Loader2 size={10} className="animate-spin" /> บันทึกอัตโนมัติ...</>}
-                    {autoSaveStatus === "saved" && <><Check size={10} className="text-green-500" /> บันทึกแล้ว</>}
-                  </span>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2">
-                {/* Zoom controls */}
-                <div className="flex items-center gap-1 bg-gray-100 rounded-lg px-1 py-0.5 border border-gray-200">
-                  <button onClick={handleZoomOut} disabled={zoomLevel <= 50}
-                    className="p-1 rounded hover:bg-white transition-colors disabled:opacity-30">
-                    <ZoomOut size={12} />
+                {/* Zoom Controls */}
+                <div className="hidden xl:flex items-center gap-1 bg-gray-100 p-1 rounded-xl border border-gray-200">
+                  <button onClick={handleZoomOut} title="Zoom Out"
+                    className="p-1.5 rounded-lg hover:bg-white hover:shadow-sm text-gray-500 transition-all">
+                    <ZoomOut size={16} />
                   </button>
-                  <span className="text-[10px] font-bold text-gray-500 w-8 text-center">{zoomLevel}%</span>
-                  <button onClick={handleZoomIn} disabled={zoomLevel >= 150}
-                    className="p-1 rounded hover:bg-white transition-colors disabled:opacity-30">
-                    <ZoomIn size={12} />
+                  <span className="text-[10px] font-bold text-gray-500 min-w-[35px] text-center">
+                    {zoomLevel}%
+                  </span>
+                  <button onClick={handleZoomIn} title="Zoom In"
+                    className="p-1.5 rounded-lg hover:bg-white hover:shadow-sm text-gray-500 transition-all">
+                    <ZoomIn size={16} />
                   </button>
                 </div>
 
+                {/* Auto-save indicator */}
+                <div className="flex items-center min-w-[100px]">
+                  {autoSaveStatus !== "idle" && (
+                    <span className="flex items-center gap-1.5 text-xs font-semibold text-gray-400">
+                      {autoSaveStatus === "saving" && <><Loader2 size={14} className="animate-spin text-indigo-400" /> กำลังบันทึก...</>}
+                      {autoSaveStatus === "saved" && <><Check size={14} className="text-green-500" /> บันทึกล่าสุด</>}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Right: Primary Actions */}
+              <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto justify-end">
                 <button onClick={handleSave} disabled={saveStatus === "saving"}
-                  className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all hover:scale-105 active:scale-95 ${saveBtn.cls}`}>
-                  {saveStatus === "saved" ? <Check size={12} /> : <Save size={12} />}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm transition-all hover:-translate-y-0.5 active:scale-95 ${saveBtn.cls}`}>
+                  {saveStatus === "saved" ? <Check size={16} /> : <Save size={16} />}
                   {saveBtn.label}
                 </button>
+                
                 <button onClick={handlePrint}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition-all hover:scale-105 active:scale-95">
-                  <Download size={12} />
-                  ดาวน์โหลด PDF
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white shadow-md shadow-indigo-600/20 transition-all hover:-translate-y-0.5 active:scale-95">
+                  <Download size={16} />
+                  PDF
                 </button>
               </div>
             </div>
 
-            {/* Resume Preview with Zoom */}
-            <div className="flex-1 overflow-auto rounded-2xl shadow-xl border border-white/70 custom-scrollbar bg-gray-50">
-              <div style={{
-                transform: `scale(${zoomLevel / 100})`,
-                transformOrigin: 'top center',
-                transition: 'transform 0.3s ease',
-                minWidth: zoomLevel < 100 ? `${100 / (zoomLevel / 100)}%` : '100%',
-              }}>
-                <div ref={resumeRef} className="bg-white">
-                  <ResumePreview />
-                </div>
+            {/* Resume Preview */}
+            <div className="flex-1 overflow-x-hidden overflow-y-auto rounded-2xl shadow-inner border border-gray-200 custom-scrollbar bg-gray-100 flex justify-center py-8 px-4">
+              <div ref={resumeRef} 
+                className="bg-white shadow-xl ring-1 ring-black/5 shrink-0 transition-transform duration-300 ease-out origin-top print:!transform-none print:!shadow-none print:!ring-0 print:!m-0 print:!p-0 print:!w-[210mm] print:!min-h-[297mm]" 
+                style={{ 
+                  width: '210mm', 
+                  minHeight: '297mm',
+                  transform: `scale(${zoomLevel / 100})`,
+                }}>
+                <ResumePreview />
               </div>
             </div>
           </div>

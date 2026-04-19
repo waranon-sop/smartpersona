@@ -1,10 +1,17 @@
-import { Geist } from "next/font/google";
+import { Inter, Noto_Sans_Thai } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-  display: "swap", // โหลด font เร็วขึ้น ไม่บล็อก render
+  display: "swap",
+});
+
+const notoSansThai = Noto_Sans_Thai({
+  variable: "--font-noto-thai",
+  subsets: ["thai", "latin"],
+  display: "swap",
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata = {
@@ -19,9 +26,9 @@ export default function RootLayout({ children }) {
     <html
       lang="th"
       suppressHydrationWarning
-      className={`${geistSans.variable} h-full antialiased`}
+      className={`${inter.variable} ${notoSansThai.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col" suppressHydrationWarning>
+      <body className="min-h-full flex flex-col font-sans" suppressHydrationWarning>
         {children}
         <Toaster 
           position="top-center" 
@@ -34,7 +41,7 @@ export default function RootLayout({ children }) {
               borderRadius: '12px',
               padding: '16px 24px',
               fontWeight: '500',
-              fontFamily: 'var(--font-geist-sans)',
+              fontFamily: 'var(--font-noto-thai), var(--font-inter), sans-serif',
             },
             success: {
               iconTheme: {

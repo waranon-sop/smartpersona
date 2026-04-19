@@ -69,8 +69,8 @@ export async function GET() {
       },
       {
         headers: {
-          // cache 30 วินนาที (ตรงกันกับ polling interval)
-          "Cache-Control": "public, s-maxage=30, stale-while-revalidate=10",
+          // cache 5 วินนาที (ตรงกันกับ polling interval ใหม่)
+          "Cache-Control": "public, s-maxage=5, stale-while-revalidate=2",
         },
       },
     );

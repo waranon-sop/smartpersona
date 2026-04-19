@@ -64,8 +64,7 @@ export default function Home() {
           </h1>
 
           <p className={styles.heroSub}>
-            สร้าง Resume สวยงามในไม่กี่นาที เลือกเทมเพลตที่ใช่ กรอกข้อมูล
-            แล้วดาวน์โหลดเป็น PDF ได้เลย
+            สร้าง Resume สวยงามในไม่กี่นาที เลือกเทมเพลตที่ใช่ กรอกข้อมูล แล้วดาวน์โหลดเป็น PDF ได้เลย
           </p>
 
           <div className={styles.heroBtns}>
@@ -142,9 +141,9 @@ export default function Home() {
 
         <div className={styles.stepsGrid}>
           {[
-            { n:"01", icon:"🎨", title:"เลือกเทมเพลต", desc:"เลือกดีไซน์ที่เหมาะกับคุณ ทั้งแบบ Classic และ Modern" },
-            { n:"02", icon:"✏️", title:"กรอกข้อมูล", desc:"บันทึกประวัติการทำงาน การศึกษา และทักษะของคุณ" },
-            { n:"03", icon:"📥", title:"ดาวน์โหลด PDF", desc:"Export เป็น PDF คุณภาพสูงพร้อมส่งให้ HR ได้เลย" },
+            { n:"01", icon:"🎨", title: "เลือกเทมเพลต", desc: "เลือกดีไซน์ที่เหมาะกับคุณ ทั้งแบบ Classic และ Modern" },
+            { n:"02", icon:"✏️", title: "กรอกข้อมูล", desc: "บันทึกประวัติการทำงาน การศึกษา และทักษะของคุณ" },
+            { n:"03", icon:"📥", title: "ดาวน์โหลด PDF", desc: "Export เป็น PDF คุณภาพสูงพร้อมส่งให้ HR ได้เลย" },
           ].map((s) => (
             <div key={s.n} className={styles.stepCard}>
               <div className={styles.stepNum}>{s.n}</div>
@@ -165,12 +164,12 @@ export default function Home() {
 
         <div className={styles.featureGrid}>
           {[
-            { icon:"💼", title:"ประสบการณ์หลายอัน", desc:"เพิ่มได้ไม่จำกัด พร้อมช่วงเวลาและรายละเอียด", color:"#dbeafe" },
-            { icon:"🎓", title:"การศึกษาหลายอัน", desc:"บันทึกได้หลายสถาบัน พร้อม GPA", color:"#dcfce7" },
-            { icon:"🖼️", title:"รูปโปรไฟล์", desc:"อัปโหลดรูปภาพประจำตัวพร้อมแสดงใน Resume", color:"#fef3c7" },
-            { icon:"💾", title:"บันทึกอัตโนมัติ", desc:"ข้อมูลถูกบันทึกลงระบบ เปิดเครื่องไหนก็ได้พร้อมกัน", color:"#ede9fe" },
-            { icon:"📱", title:"Responsive Design", desc:"ใช้งานได้ทั้ง PC และมือถือ", color:"#fce7f3" },
-            { icon:"🔒", title:"ข้อมูลปลอดภัย", desc:"ระบบ JWT Authentication ป้องกันข้อมูลส่วนตัว", color:"#ecfdf5" },
+            { icon:"💼", title: "ประสบการณ์หลายอัน", desc: "เพิ่มได้ไม่จำกัด พร้อมช่วงเวลาและรายละเอียด", color:"#dbeafe" },
+            { icon:"🎓", title: "การศึกษาหลายอัน", desc: "บันทึกได้หลายสถาบัน พร้อม GPA", color:"#dcfce7" },
+            { icon:"🖼️", title: "รูปโปรไฟล์", desc: "อัปโหลดรูปภาพประจำตัวพร้อมแสดงใน Resume", color:"#fef3c7" },
+            { icon:"💾", title: "บันทึกอัตโนมัติ", desc: "ข้อมูลถูกบันทึกลงระบบ เปิดเครื่องไหนก็ได้พร้อมกัน", color:"#ede9fe" },
+            { icon:"📱", title: "Responsive Design", desc: "ใช้งานได้ทั้ง PC และมือถือ", color:"#fce7f3" },
+            { icon:"🔒", title: "ข้อมูลปลอดภัย", desc: "ระบบ JWT Authentication ป้องกันข้อมูลส่วนตัว", color:"#ecfdf5" },
           ].map((f) => (
             <div key={f.title} className={styles.featCard}>
               <div className={styles.featIconWrap} style={{background: f.color}}>

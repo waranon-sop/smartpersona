@@ -80,79 +80,50 @@ export default async function Dashboard() {
 
       <div className="relative max-w-7xl mx-auto px-6 py-8">
 
-        {/* ===== ELITE HERO SECTION ===== */}
-        <div className="relative rounded-[2.5rem] overflow-hidden mb-12 shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-white/20"
-          style={{ background: "linear-gradient(135deg, #020617 0%, #0f172a 100%)" }}>
+        {/* ===== LIGHT HERO SECTION ===== */}
+        <div className="relative rounded-[2rem] overflow-hidden mb-12 shadow-sm border border-indigo-100 bg-white">
           
-          {/* Animated Mesh Gradient Overlay */}
+          {/* Subtle Accent Background */}
           <div className="absolute inset-0 opacity-40 pointer-events-none">
-            <div className="absolute -top-24 -left-24 w-[500px] h-[500px] rounded-full mix-blend-screen animate-pulse"
-              style={{ background: "radial-gradient(circle, rgba(99,102,241,0.3) 0%, transparent 70%)", filter: "blur(60px)" }} />
-            <div className="absolute -bottom-32 right-0 w-[600px] h-[600px] rounded-full mix-blend-screen"
-              style={{ background: "radial-gradient(circle, rgba(168,85,247,0.2) 0%, transparent 70%)", filter: "blur(80px)" }} />
+            <div className="absolute -top-24 -left-24 w-[500px] h-[500px] rounded-full mix-blend-multiply opacity-50"
+              style={{ background: "radial-gradient(circle, rgba(79,70,229,0.1) 0%, transparent 70%)", filter: "blur(40px)" }} />
+            <div className="absolute -bottom-32 right-0 w-[600px] h-[600px] rounded-full mix-blend-multiply opacity-50"
+              style={{ background: "radial-gradient(circle, rgba(147,51,234,0.1) 0%, transparent 70%)", filter: "blur(60px)" }} />
           </div>
           
-          {/* Glass Card Content */}
-          <div className="relative z-10 p-10 md:p-14 flex flex-col lg:flex-row items-center justify-between gap-10">
-            <div className="flex-1 space-y-6">
-              {/* Premium Badge */}
-              <div className="inline-flex items-center gap-2 bg-white/5 backdrop-blur-md border border-white/10 rounded-full px-5 py-2">
-                <div className="w-2 h-2 rounded-full bg-indigo-400 animate-ping" />
-                <span className="text-white/60 text-[10px] font-black tracking-[0.3em] uppercase">Executive Workspace</span>
-              </div>
+          {/* Card Content */}
+          <div className="relative z-10 p-8 md:p-12 flex flex-col lg:flex-row items-center justify-between gap-10">
+            <div className="flex-1 space-y-4">
 
-              <h1 className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tighter">
+              <h1 className="text-4xl md:text-5xl font-black text-gray-900 leading-tight tracking-tight">
                 ยินดีต้อนรับกลับ,{" "}
-                <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                <span className="text-indigo-600">
                   {user?.name || "Member"}
-                </span>{" "}✨
+                </span>{" "}👋
               </h1>
               
-              <p className="text-slate-400 text-lg max-w-2xl leading-relaxed font-medium">
-                จัดการและยกระดับโปรไฟล์ความเป็นมืออาชีพของคุณ<br className="hidden md:block" />
-                ด้วยเทมเพลตระดับ Elite ที่ออกแบบมาเพื่อดึงดูดความสนใจจาก HR ชั้นนำ
+              <p className="text-gray-500 text-base max-w-2xl leading-relaxed font-medium">
+                จัดการและสร้างสรรค์โปรไฟล์ความเป็นมืออาชีพของคุณ 
+                ด้วยเทมเพลตที่ออกแบบมาเพื่อดึงดูดความสนใจจาก HR
               </p>
 
-              {/* High-Fidelity Metrics */}
-              <div className="flex flex-wrap gap-8 pt-4">
+              {/* Metrics */}
+              <div className="flex flex-wrap gap-8 pt-6">
                 {[
-                  { label: "My Resumes", value: resumes.length, icon: FileText, color: "#6366f1" },
-                  { label: "Public Views", value: totalViews, icon: TrendingUp, color: "#a855f7" },
+                  { label: "เรซูเม่ทั้งหมด", value: resumes.length, icon: FileText, color: "#4F46E5", bg: "#EEF2FF" },
+                  { label: "ยอดเข้าชม", value: totalViews, icon: TrendingUp, color: "#9333EA", bg: "#F3E8FF" },
                 ].map((stat) => (
-                  <div key={stat.label} className="group relative">
-                    <div className="absolute -inset-2 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <div className="relative flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-2xl flex items-center justify-center border border-white/10 bg-white/5 backdrop-blur-sm" style={{ boxShadow: `0 0 20px ${stat.color}20` }}>
-                        <stat.icon size={20} style={{ color: stat.color }} />
-                      </div>
-                      <div>
-                        <div className="text-3xl font-black text-white tracking-tighter leading-none">{stat.value}</div>
-                        <div className="text-slate-500 text-[10px] font-black uppercase tracking-widest mt-1.5">{stat.label}</div>
-                      </div>
+                  <div key={stat.label} className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ backgroundColor: stat.bg, color: stat.color }}>
+                      <stat.icon size={22} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                      <div className="text-3xl font-black text-gray-900 leading-none">{stat.value}</div>
+                      <div className="text-gray-500 text-[11px] font-bold uppercase tracking-wide mt-1">{stat.label}</div>
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
-
-            {/* Premium CTA Container */}
-            <div className="flex-shrink-0 w-full lg:w-auto">
-              <Link
-                href="/create/templates?new=1"
-                className="group relative flex items-center gap-4 bg-white text-slate-900 font-black py-5 px-10 rounded-3xl shadow-[0_20px_50px_rgba(99,102,241,0.3)] transition-all hover:-translate-y-1 hover:scale-105 active:scale-95"
-              >
-                <div className="relative overflow-hidden w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center group-hover:rotate-12 transition-transform duration-500 shadow-lg shadow-indigo-500/40">
-                  <Plus size={22} className="text-white relative z-10" />
-                  <div className="absolute inset-0 bg-gradient-to-tr from-indigo-400 to-indigo-700 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-                <div className="flex flex-col items-start leading-none">
-                  <span className="text-lg tracking-tight">สร้างเรซูเม่ใบใหม่</span>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Start Elite Design</span>
-                </div>
-                
-                {/* Button shine effect */}
-                <div className="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent to-white opacity-20 group-hover:animate-shine" />
-              </Link>
             </div>
           </div>
         </div>
@@ -179,8 +150,8 @@ export default async function Dashboard() {
         {/* ===== RESUME GRID ===== */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 
-          {/* ---- CREATE NEW CARD ---- */}
-          <Link
+          {/* ---- CREATE NEW CARD (only when user has resumes) ---- */}
+          {resumes.length > 0 && <Link
             href="/create/templates?new=1"
             className="group relative rounded-3xl overflow-hidden h-[320px] flex flex-col items-center justify-center text-center p-6 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
             style={{
@@ -207,7 +178,7 @@ export default async function Dashboard() {
             {/* Hover glow */}
             <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               style={{ background: "linear-gradient(135deg, rgba(102,126,234,0.05), rgba(118,75,162,0.05))" }} />
-          </Link>
+          </Link>}
 
           {/* ---- RESUME CARDS ---- */}
           {resumes.map((resume) => {

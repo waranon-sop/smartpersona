@@ -2,9 +2,8 @@ import { NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
 /**
- * Next.js Middleware
+ * Next.js Middleware / Proxy
  * รับหน้าที่ด่านหน้า (Firewall) ตรวจสอบและสกัดกั้นการเข้าใช้งาน Page/API เส้นทางสำคัญ
- * ป้องกันการเข้าถึงจากผู้ใช้ที่ไม่ล็อกอิน หรือพยายามข้ามสิทธิ์ Admin
  */
 export async function proxy(request) {
   const { pathname } = request.nextUrl;

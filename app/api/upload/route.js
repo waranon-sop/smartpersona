@@ -1,26 +1,15 @@
 import { NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
-import jwt from 'jsonwebtoken';
-
-// ดึง user_id จาก JWT cookie
-function getUserIdFromRequest(request) {
-  const token = request.cookies.get('token')?.value;
-  if (!token) return null;
-  try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
-    return payload.id;
-  } catch {
-    return null;
-  }
-}
+import { getCurrentUser } from '@/lib/session';
 
 // POST /api/upload — อัปโหลดรูปภาพ บันทึกใน /public/uploads/
 export async function POST(request) {
-  const userId = getUserIdFromRequest(request);
-  if (!userId) {
+  const user = await getCurrentUser();
+  if (!user) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
+  const userId = user.id;
 
   try {
     const formData = await request.formData();

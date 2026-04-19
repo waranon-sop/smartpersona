@@ -1,4 +1,4 @@
-import { Search, Plus, Edit2, Trash2, Users, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Search, Plus, Edit2, Trash2, Users, ChevronLeft, ChevronRight, X, Download } from "lucide-react";
 import Link from "next/link";
 import pool from "@/lib/db";
 import { deleteUser } from "@/app/admin/actions/adminActions";
@@ -75,12 +75,20 @@ export default async function UsersManagementPage({ searchParams }) {
           </p>
         </div>
         
-        <Link
-          href="/admin/users/new"
-          className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 shadow-sm shadow-blue-600/20 transition-all"
-        >
-          <Plus size={18} /> เพิ่มผู้ใช้ใหม่
-        </Link>
+        <div className="flex items-center gap-3">
+          <a
+            href="/api/admin/export/users"
+            className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm font-semibold hover:bg-slate-50 shadow-sm transition-all"
+          >
+            <Download size={18} /> Export CSV
+          </a>
+          <Link
+            href="/admin/users/new"
+            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 shadow-sm shadow-blue-600/20 transition-all"
+          >
+            <Plus size={18} /> เพิ่มผู้ใช้ใหม่
+          </Link>
+        </div>
       </section>
 
       {/* 2. Filter & Search Board */}
