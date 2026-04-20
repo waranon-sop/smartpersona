@@ -27,6 +27,23 @@ function Counter({ to, suffix = "" }) {
 }
 
 export default function Home() {
+  const [stats, setStats] = useState({ totalUsers: 0, totalResumes: 0 });
+  const [siteName, setSiteName] = useState("Smart Persona");
+
+  useEffect(() => {
+    fetch("/api/stats/public")
+      .then(res => res.json())
+      .then(data => setStats(data))
+      .catch(err => console.error("Fetch stats error:", err));
+      
+    fetch("/api/settings/public")
+      .then(res => res.json())
+      .then(data => {
+        if (data.site_name) setSiteName(data.site_name);
+      })
+      .catch(err => console.error("Fetch settings error:", err));
+  }, []);
+
   const handleCTA = async () => {
     try {
       const res = await fetch("/api/auth/verify");
@@ -78,13 +95,13 @@ export default function Home() {
           {/* Stats */}
           <div className={styles.stats}>
             <div className={styles.stat}>
-              <strong><Counter to={500} suffix="+" /></strong>
+              <strong><Counter to={stats.totalUsers} suffix="+" /></strong>
               <span>ผู้ใช้งาน</span>
             </div>
             <div className={styles.statDivider} />
             <div className={styles.stat}>
-              <strong><Counter to={7} /></strong>
-              <span>เทมเพลต</span>
+              <strong><Counter to={stats.totalResumes} /></strong>
+              <span>เรซูเม่ที่ถูกสร้าง</span>
             </div>
             <div className={styles.statDivider} />
             <div className={styles.stat}>
@@ -195,10 +212,10 @@ export default function Home() {
       {/* ===== FOOTER ===== */}
       <footer className={styles.footer}>
         <div className={styles.footerLogo}>
-          <div className={styles.footerLogoIcon}>S</div>
-          <span>Smart Persona</span>
+          <div className={styles.footerLogoIcon}>{siteName.charAt(0).toUpperCase()}</div>
+          <span>{siteName}</span>
         </div>
-        <p className={styles.footerText}>© {new Date().getFullYear()} Smart Persona · Resume Builder ฟรีสำหรับทุกคน</p>
+        <p className={styles.footerText}>© {new Date().getFullYear()} {siteName} · Resume Builder ฟรีสำหรับทุกคน</p>
       </footer>
     </div>
   );

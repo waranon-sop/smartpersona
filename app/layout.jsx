@@ -14,10 +14,30 @@ const notoSansThai = Noto_Sans_Thai({
   weight: ["300", "400", "500", "600", "700"],
 });
 
-export const metadata = {
-  title: "SmartPersona - สร้าง Resume ออนไลน์",
-  description: "สร้าง Resume และ Portfolio สวยงาม ง่ายดาย และโดนเด่น ด้วย SmartPersona",
-};
+import pool from "@/lib/db";
+
+export async function generateMetadata() {
+  let title = "SmartPersona - สร้าง Resume ออนไลน์";
+  let description = "สร้าง Resume และ Portfolio สวยงาม ง่ายดาย และโดนเด่น ด้วย SmartPersona";
+
+  try {
+    const [rows] = await pool.query("SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('site_name', 'site_description')");
+    const settings = rows.reduce((acc, row) => {
+      acc[row.setting_key] = row.setting_value;
+      return acc;
+    }, {});
+    
+    if (settings.site_name) title = settings.site_name;
+    if (settings.site_description) description = settings.site_description;
+  } catch (e) {
+    console.error("Failed to fetch metadata:", e);
+  }
+
+  return {
+    title,
+    description
+  };
+}
 
 import { Toaster } from "react-hot-toast";
 

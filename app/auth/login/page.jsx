@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import axios from "axios";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -14,6 +14,24 @@ function LoginContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
+  const [siteName, setSiteName] = useState("Smart Persona");
+  const [totalUsers, setTotalUsers] = useState(0);
+
+  useEffect(() => {
+    fetch("/api/settings/public")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.site_name) setSiteName(data.site_name);
+      })
+      .catch((err) => console.error("Failed to fetch site name:", err));
+
+    fetch("/api/stats/public")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.totalUsers) setTotalUsers(data.totalUsers);
+      })
+      .catch((err) => console.error("Failed to fetch stats:", err));
+  }, []);
 
   const usernameRef = useRef();
   const router = useRouter();
@@ -74,7 +92,7 @@ function LoginContent() {
         <div className="relative z-10 max-w-lg text-center">
           <div className="w-24 h-24 mx-auto mb-8 rounded-3xl bg-white shadow-xl shadow-indigo-100 flex items-center justify-center rotate-3 hover:rotate-6 transition-transform duration-500">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-black text-3xl">
-              S
+              {siteName.charAt(0).toUpperCase()}
             </div>
           </div>
           <h2 className="text-4xl font-black text-gray-900 mb-6 leading-tight tracking-tight">
@@ -86,7 +104,7 @@ function LoginContent() {
           </p>
           
           <div className="mt-10 flex items-center justify-center gap-4 text-sm font-bold text-gray-500">
-            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-green-500"></span> 500+ ผู้ใช้งาน</span>
+            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-green-500"></span> {totalUsers}+ ผู้ใช้งาน</span>
             <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue-500"></span> 7 เทมเพลตฟรี</span>
           </div>
         </div>
@@ -102,9 +120,9 @@ function LoginContent() {
           {/* Logo & Brand */}
           <Link href="/" className="inline-flex items-center gap-3 no-underline mb-12">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-800 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-indigo-500/30">
-              S
+              {siteName.charAt(0).toUpperCase()}
             </div>
-            <span className="text-xl font-black text-gray-900 tracking-tight">Smart Persona</span>
+            <span className="text-xl font-black text-gray-900 tracking-tight">{siteName}</span>
           </Link>
 
           <div className="mb-8">

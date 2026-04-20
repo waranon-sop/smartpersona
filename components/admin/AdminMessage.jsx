@@ -14,15 +14,20 @@ export default function AdminMessage() {
     const success = searchParams.get("success");
     const error = searchParams.get("error");
 
-    if (success) {
-      setMessage(success);
-      setType("success");
-      // Auto-clear after 5 seconds
-      const timer = setTimeout(() => setMessage(null), 5000);
-      return () => clearTimeout(timer);
-    } else if (error) {
-      setMessage(error);
-      setType("error");
+    if (success || error) {
+      // Use a timeout to avoid synchronous state update in effect warning
+      const timer = setTimeout(() => {
+        setMessage(success || error);
+        setType(success ? "success" : "error");
+      }, 10);
+
+      // Auto-clear after 5 seconds (relative to the show time)
+      const clearTimer = setTimeout(() => setMessage(null), 5010);
+      
+      return () => {
+        clearTimeout(timer);
+        clearTimeout(clearTimer);
+      };
     }
   }, [searchParams]);
 

@@ -91,8 +91,7 @@ export async function POST(request) {
     console.error("Save Resume Error Detailed:", {
       message: error.message,
       stack: error.stack,
-      userId: user?.id,
-      resumeId: resumeId
+      userId: userId
     });
     return NextResponse.json({ message: "Server Error", detail: error.message }, { status: 500 });
   }

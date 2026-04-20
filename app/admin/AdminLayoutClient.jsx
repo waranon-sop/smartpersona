@@ -25,7 +25,7 @@ import AdminMessage from '@/components/admin/AdminMessage';
 import { Trash2 } from 'lucide-react';
 import UserMenu from '@/components/create/UserMenu';
 
-export default function AdminLayoutClient({ children, user, initialNotifications = [] }) {
+export default function AdminLayoutClient({ children, user, initialNotifications = [], siteName = "SmartPersona" }) {
   const router = useRouter();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -79,12 +79,12 @@ export default function AdminLayoutClient({ children, user, initialNotifications
       {/* Sidebar - Desktop */}
       <aside className="w-64 bg-white/80 backdrop-blur-xl border-r border-slate-200 hidden md:flex flex-col sticky top-0 h-screen z-40">
         <div className="p-8 flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-600/20">
-            <Hexagon size={24} fill="currentColor" className="text-white/20" />
+          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-600/20 font-bold text-xl">
+            {siteName.charAt(0).toUpperCase()}
           </div>
           <div>
             <h1 className="text-lg font-bold text-slate-900 tracking-tight leading-tight">
-              SmartPersona
+              {siteName}
             </h1>
             <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider">
               คอนโซลผู้ดูแลระบบ
@@ -243,10 +243,10 @@ export default function AdminLayoutClient({ children, user, initialNotifications
         <aside className={`fixed inset-y-0 left-0 w-72 bg-white z-[60] transform transition-transform duration-300 ease-in-out md:hidden flex flex-col shadow-2xl ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <div className="p-6 border-b border-slate-100 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
-                <Hexagon size={18} fill="currentColor" className="text-white/20" />
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
+                {siteName.charAt(0).toUpperCase()}
               </div>
-              <h1 className="text-lg font-bold tracking-tight">SmartPersona</h1>
+              <h1 className="text-lg font-bold tracking-tight">{siteName}</h1>
             </div>
             <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg">
               <X size={20} />

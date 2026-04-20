@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -16,6 +16,24 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({});
+  const [siteName, setSiteName] = useState("Smart Persona");
+  const [totalUsers, setTotalUsers] = useState(0);
+
+  useEffect(() => {
+    fetch("/api/settings/public")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.site_name) setSiteName(data.site_name);
+      })
+      .catch((err) => console.error("Failed to fetch site name:", err));
+
+    fetch("/api/stats/public")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.totalUsers) setTotalUsers(data.totalUsers);
+      })
+      .catch((err) => console.error("Failed to fetch stats:", err));
+  }, []);
 
   const router = useRouter();
 
@@ -77,7 +95,7 @@ export default function RegisterPage() {
         <div className="relative z-10 max-w-lg text-center">
           <div className="w-24 h-24 mx-auto mb-8 rounded-3xl bg-white shadow-xl shadow-indigo-200 flex items-center justify-center -rotate-3 hover:-rotate-6 transition-transform duration-500">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-bl from-indigo-500 to-purple-600 flex items-center justify-center text-white font-black text-3xl">
-              S
+              {siteName.charAt(0).toUpperCase()}
             </div>
           </div>
           <h2 className="text-4xl font-black text-gray-900 mb-6 leading-tight tracking-tight">
@@ -85,7 +103,7 @@ export default function RegisterPage() {
             <span className="text-indigo-600">โปรไฟล์มืออาชีพของคุณ</span>
           </h2>
           <p className="text-lg text-gray-500 font-medium">
-            เข้าร่วมกับผู้ใช้งานกว่า 500+ คน ที่ใช้ Smart Persona ในการสร้างเรซูเม่ที่โดดเด่นและได้งานในฝัน
+            เข้าร่วมกับผู้ใช้งานกว่า {totalUsers}+ คน ที่ใช้ {siteName} ในการสร้างเรซูเม่ที่โดดเด่นและได้งานในฝัน
           </p>
           
           <div className="mt-12 flex flex-col gap-4 text-sm font-bold text-gray-600 text-left max-w-xs mx-auto">
@@ -115,9 +133,9 @@ export default function RegisterPage() {
           {/* Logo & Brand (Mobile only) */}
           <Link href="/" className="lg:hidden inline-flex items-center gap-3 no-underline mb-8">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-800 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-indigo-500/30">
-              S
+              {siteName.charAt(0).toUpperCase()}
             </div>
-            <span className="text-xl font-black text-gray-900 tracking-tight">Smart Persona</span>
+            <span className="text-xl font-black text-gray-900 tracking-tight">{siteName}</span>
           </Link>
 
           <div className="mb-8">

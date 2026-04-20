@@ -46,7 +46,7 @@ export default async function UsersManagementPage({ searchParams }) {
     totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
 
     const [rows] = await pool.query(
-      `SELECT u.id, u.name, u.email, u.role, u.status, u.created_at,
+      `SELECT u.id, u.name, u.email, u.role, u.status, u.created_at, u.profile_pic,
         (SELECT COUNT(*) FROM resumes r WHERE r.user_id = u.id) as resumes
        FROM users u ${whereClause}
        ORDER BY u.created_at DESC
@@ -173,9 +173,15 @@ export default async function UsersManagementPage({ searchParams }) {
                 <tr key={user.id} className="hover:bg-slate-50 transition-colors group">
                   <td className="py-4 px-6">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold text-lg">
-                        {user.name.charAt(0).toUpperCase()}
-                      </div>
+                      {user.profile_pic ? (
+                        <div className="w-12 h-12 rounded-full overflow-hidden border border-slate-200 flex-shrink-0 bg-slate-50">
+                          <img src={user.profile_pic} alt={user.name} className="w-full h-full object-cover" />
+                        </div>
+                      ) : (
+                        <div className="w-12 h-12 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold text-lg flex-shrink-0">
+                          {user.name.charAt(0).toUpperCase()}
+                        </div>
+                      )}
                       <div>
                         <p className="font-bold text-slate-800 text-sm mb-0.5">{user.name}</p>
                         <p className="text-xs text-slate-500">{user.email}</p>

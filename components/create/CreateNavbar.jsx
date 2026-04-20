@@ -11,6 +11,7 @@ export default function CreateNavbar() {
   const router = useRouter();
   const pathname = usePathname();
   const [userName, setUserName] = useState("");
+  const [siteName, setSiteName] = useState("Smart Persona");
   const { resumeId } = useResume();
 
   useEffect(() => {
@@ -18,6 +19,13 @@ export default function CreateNavbar() {
     fetch("/api/users/profile")
       .then((r) => r.json())
       .then((d) => setUserName(d.user?.name || ""))
+      .catch(() => {});
+
+    fetch("/api/settings/public")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.site_name) setSiteName(d.site_name);
+      })
       .catch(() => {});
   }, []);
 
@@ -43,9 +51,9 @@ export default function CreateNavbar() {
         {/* Logo (Styled like homepage Navbar) */}
         <Link href="/" className="flex items-center gap-3 no-underline group">
           <div className="w-10 h-10 rounded-[14px] bg-gradient-to-br from-[#6366f1] to-[#4f46e5] flex items-center justify-center text-white font-black text-[18px] shadow-[0_8px_16px_rgba(99,102,241,0.25)] transition-transform duration-300 group-hover:-rotate-3 group-hover:scale-105">
-            S
+            {siteName.charAt(0).toUpperCase()}
           </div>
-          <span className="text-[#0f172a] font-black text-[20px] tracking-[-0.5px] hidden sm:block">Smart Persona</span>
+          <span className="text-[#0f172a] font-black text-[20px] tracking-[-0.5px] hidden sm:block">{siteName}</span>
         </Link>
 
         {/* Center: Step Navigation */}

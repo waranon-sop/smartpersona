@@ -13,11 +13,13 @@ export default function QuickSettingsCard({ settings: initialSettings }) {
   
   // ใช้ Local State เพื่อให้ UI ตอบสนองทันที (Optimistic UI)
   const [localSettings, setLocalSettings] = useState(initialSettings || {});
+  const [prevInitialSettings, setPrevInitialSettings] = useState(initialSettings);
 
-  // อัปเดต Local State เมื่อ Props เปลี่ยน (หลัง Refresh)
-  useEffect(() => {
+  // อัปเดต Local State เมื่อ Props เปลี่ยน (หลัง Refresh) - ใช้วิธี Render-time sync แทน useEffect เพื่อเลี่ยง lint error
+  if (initialSettings !== prevInitialSettings) {
     setLocalSettings(initialSettings || {});
-  }, [initialSettings]);
+    setPrevInitialSettings(initialSettings);
+  }
 
   const handleToggle = (key, currentStrValue) => {
     const newValue = currentStrValue === "true" ? "false" : "true";

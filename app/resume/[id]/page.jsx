@@ -5,7 +5,6 @@ import { useParams } from "next/navigation";
 import { useReactToPrint } from "react-to-print";
 import ResumeRenderer from "@/components/features/resume/ResumeRenderer";
 import {
-  incrementResumeView,
   incrementResumeDownload,
 } from "@/app/actions/statsActions";
 import Link from "next/link";
@@ -47,7 +46,6 @@ export default function PublicResumePage() {
         }
 
         setData(loadedData);
-        incrementResumeView(resumeId).catch(console.error);
       } catch (err) {
         setError("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้");
       } finally {
@@ -74,7 +72,7 @@ export default function PublicResumePage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center font-sans">
-        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-4"></div>
         <p className="text-gray-600 font-medium tracking-wide">
           กำลังโหลด Resume...
         </p>
@@ -93,7 +91,7 @@ export default function PublicResumePage() {
           </p>
           <Link
             href="/"
-            className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
+            className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
           >
             กลับไปหน้าหลัก
           </Link>
@@ -116,7 +114,7 @@ export default function PublicResumePage() {
         <div className="w-[794px] flex justify-end mb-4 print:hidden max-w-full">
           <button
             onClick={handlePrint}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-5 rounded-lg shadow-sm transition-all flex items-center gap-2"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-5 rounded-lg shadow-sm transition-all flex items-center gap-2"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

@@ -13,6 +13,7 @@ const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn]       = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const [userName, setUserName]           = useState("");
+  const [siteName, setSiteName]           = useState("Smart Persona");
   const [scrolled, setScrolled]           = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -37,7 +38,23 @@ const Navbar = () => {
         setIsLoadingAuth(false);
       }
     };
+
+    const fetchSettings = async () => {
+      try {
+        const res = await fetch("/api/settings/public");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.site_name) {
+            setSiteName(data.site_name);
+          }
+        }
+      } catch (err) {
+        // ignore
+      }
+    };
+
     checkAuth();
+    fetchSettings();
 
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll);
@@ -54,8 +71,8 @@ const Navbar = () => {
     <nav className={`${styles.navbar} ${scrolled ? styles.scrolled : ""}`}>
       <div className={styles.left}>
         <Link href="/" className={styles.logo}>
-          <div className={styles.logoIcon}>S</div>
-          <span className={styles.logoText}>Smart Persona</span>
+          <div className={styles.logoIcon}>{siteName.charAt(0).toUpperCase()}</div>
+          <span className={styles.logoText}>{siteName}</span>
         </Link>
         <ul className={`${styles.navMenu} ${isMobileMenuOpen ? styles.mobileOpen : ""}`}>
           <li><Link href="/" className={`${styles.navLink} ${pathname === "/" ? styles.active : ""}`}>หน้าหลัก</Link></li>

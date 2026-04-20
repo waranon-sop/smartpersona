@@ -7,7 +7,7 @@ import { Save, Download, Share2, Check, ZoomIn, ZoomOut, Loader2 } from "lucide-
 
 import { useResume } from "@/contexts/ResumeContext";
 import ResumePreview from "@/components/create/ResumePreview";
-import { incrementResumeView, incrementResumeDownload } from "@/app/actions/statsActions";
+import { incrementResumeDownload } from "@/app/actions/statsActions";
 
 // Modular Sections
 import PersonalInfoSection from "@/components/features/create/personalInfo/sections/PersonalInfoSection";
@@ -178,9 +178,7 @@ export default function ResumeBuilder() {
     if (resumeId) await incrementResumeDownload(resumeId);
   };
 
-  useEffect(() => {
-    if (resumeId) incrementResumeView(resumeId);
-  }, [resumeId]);
+  // removed incrementResumeView when editing
 
   // ── image upload ──
   const handleUpload = async (e) => {
@@ -281,10 +279,24 @@ export default function ResumeBuilder() {
       }
     }
 
-    navigator.clipboard.writeText(`${window.location.origin}/resume/${currentId}`).then(() => {
+    try {
+      const pubRes = await fetch("/api/resume/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ resumeId: currentId }),
+      });
+      
+      if (!pubRes.ok) {
+        toast.error("ไม่สามารถตั้งค่าให้ลิงก์เป็นสาธารณะได้");
+        return;
+      }
+
+      await navigator.clipboard.writeText(`${window.location.origin}/resume/${currentId}`);
       setCopied(true); setTimeout(() => setCopied(false), 3000);
-      toast.success("คัดลอกลิงก์เรียบร้อยแล้ว!");
-    });
+      toast.success("เรซูเม่ถูกตั้งเป็นสาธารณะ และคัดลอกลิงก์เรียบร้อยแล้ว!");
+    } catch (err) {
+      toast.error("ไม่สามารถคัดลอกลิงก์ได้อัตโนมัติ (Clipboard API ถูกบล็อก)");
+    }
   };
 
   // ── Navigate with unsaved changes warning ──
@@ -430,6 +442,7 @@ export default function ResumeBuilder() {
                     <span className="flex items-center gap-1.5 text-xs font-semibold text-gray-400">
                       {autoSaveStatus === "saving" && <><Loader2 size={14} className="animate-spin text-indigo-400" /> กำลังบันทึก...</>}
                       {autoSaveStatus === "saved" && <><Check size={14} className="text-green-500" /> บันทึกล่าสุด</>}
+                      {autoSaveStatus === "error" && <span className="text-red-500 flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> บันทึกไม่สำเร็จ</span>}
                     </span>
                   )}
                 </div>
@@ -444,7 +457,7 @@ export default function ResumeBuilder() {
                 </button>
                 
                 <button onClick={handlePrint}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white shadow-md shadow-indigo-600/20 transition-all hover:-translate-y-0.5 active:scale-95">
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-all hover:-translate-y-0.5 active:scale-95">
                   <Download size={16} />
                   PDF
                 </button>

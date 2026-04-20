@@ -55,6 +55,7 @@ export async function createUser(formData) {
   const role = formData.get("role");
   const status = formData.get("status");
 
+  let errorMsg = null;
   try {
     // Basic validation
     if (!name || !email || !password)
@@ -69,14 +70,24 @@ export async function createUser(formData) {
     if (status && !allowedStatus.includes(status))
       throw new Error("Invalid status");
     const hashedPassword = await bcrypt.hash(password, 10);
-    await pool.query(
+    const [result] = await pool.query(
       "INSERT INTO users (name, email, password, role, status) VALUES (?, ?, ?, ?, ?)",
       [name, email, hashedPassword, role, status],
     );
+    const userId = result.insertId;
+    if (userId) {
+      await pool.query(
+        "INSERT INTO user_emails (user_id, email, is_primary) VALUES (?, ?, ?)",
+        [userId, email, true]
+      );
+    }
   } catch (error) {
     console.error("Failed to create user:", error);
-    // Redirect back with error message instead of crashing
-    redirect("/admin/users/new?error=" + encodeURIComponent(error.message));
+    errorMsg = error.message;
+  }
+
+  if (errorMsg) {
+    redirect("/admin/users/new?error=" + encodeURIComponent(errorMsg));
   }
 
   revalidatePath("/admin/users");
@@ -117,6 +128,16 @@ export async function updateUser(id, formData) {
         [name, email, role, status, id],
       );
     }
+
+    // Sync primary email in user_emails table
+    if (email) {
+      const [primaryCheck] = await pool.query("SELECT id FROM user_emails WHERE user_id = ? AND is_primary = true", [id]);
+      if (primaryCheck.length > 0) {
+        await pool.query("UPDATE user_emails SET email = ? WHERE id = ?", [email, primaryCheck[0].id]);
+      } else {
+        await pool.query("INSERT INTO user_emails (user_id, email, is_primary) VALUES (?, ?, true)", [id, email]);
+      }
+    }
   } catch (error) {
     console.error("Failed to update user:", error);
     throw new Error(error.message || "Failed to update user");
@@ -132,20 +153,21 @@ export async function deleteUser(id) {
   if (currentUser?.role?.toLowerCase() !== "admin")
     throw new Error("Unauthorized");
 
-  let isSuccess = false;
+  let errorMsg = null;
   try {
     await pool.query("DELETE FROM users WHERE id = ?", [id]);
-    isSuccess = true;
   } catch (error) {
     console.error("Failed to delete user:", error);
-    redirect("/admin/users?error=" + encodeURIComponent(error.message));
+    errorMsg = error.message;
   }
 
-  if (isSuccess) {
-    revalidatePath("/admin/users");
-    revalidatePath("/admin");
-    redirect("/admin/users?success=User+deleted+successfully&t=" + Date.now());
+  if (errorMsg) {
+    redirect("/admin/users?error=" + encodeURIComponent(errorMsg));
   }
+
+  revalidatePath("/admin/users");
+  revalidatePath("/admin");
+  redirect("/admin/users?success=User+deleted+successfully&t=" + Date.now());
 }
 
 export async function updateUserStatus(id, newStatus) {
@@ -176,20 +198,21 @@ export async function deleteResume(id) {
   if (currentUser?.role?.toLowerCase() !== "admin")
     throw new Error("Unauthorized");
 
-  let isSuccess = false;
+  let errorMsg = null;
   try {
     await pool.query("DELETE FROM resumes WHERE id = ?", [id]);
-    isSuccess = true;
   } catch (error) {
     console.error("Failed to delete resume:", error);
-    redirect("/admin/resumes?error=" + encodeURIComponent(error.message));
+    errorMsg = error.message;
   }
 
-  if (isSuccess) {
-    revalidatePath("/admin/resumes");
-    revalidatePath("/admin");
-    redirect("/admin/resumes?success=Resume+deleted+successfully&t=" + Date.now());
+  if (errorMsg) {
+    redirect("/admin/resumes?error=" + encodeURIComponent(errorMsg));
   }
+
+  revalidatePath("/admin/resumes");
+  revalidatePath("/admin");
+  redirect("/admin/resumes?success=Resume+deleted+successfully&t=" + Date.now());
 }
 
 // Settings Actions

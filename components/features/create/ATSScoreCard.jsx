@@ -5,13 +5,7 @@ import { checkATSScore } from "@/lib/ats-checker";
 import { Gauge, Info, CheckCircle2, AlertCircle } from "lucide-react";
 
 export default function ATSScoreCard({ resumeData }) {
-  const [results, setResults] = useState(null);
-
-  useEffect(() => {
-    if (resumeData) {
-      setResults(checkATSScore(resumeData));
-    }
-  }, [resumeData]);
+  const results = resumeData ? checkATSScore(resumeData) : null;
 
   if (!results) return null;
 

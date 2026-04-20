@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { query } from "@/lib/db";
+import { getCurrentUser } from "@/lib/session";
 
 export async function GET(request) {
   try {
@@ -10,9 +11,9 @@ export async function GET(request) {
       return NextResponse.json({ message: "Resume ID is required" }, { status: 400 });
     }
 
-    // ดึงข้อมูล Resume เฉพาะที่เป็น Public เท่านั้น
+    // ดึงข้อมูล Resume เฉพาะที่เป็น Public เท่านั้น (พร้อมเช็ค user_id เพื่อใช้กรองการนับ view)
     const sql = `
-      SELECT r.id, r.title, r.template, 
+      SELECT r.id, r.user_id, r.title, r.template, 
              c.config, c.personal, c.education, c.experience, c.summary, c.skills,
              c.languages, c.certifications, c.projects
       FROM resumes r
@@ -26,9 +27,13 @@ export async function GET(request) {
     }
 
     const row = results[0];
+    const user = await getCurrentUser();
     
-    // Increment view count for public access
-    await query("UPDATE resumes SET views = views + 1 WHERE id = ?", [resumeId]);
+    // Increment view count ONLY if the visitor is NOT the owner
+    // This makes stats much more "สมเหตุสมผล"
+    if (!user || user.id !== row.user_id) {
+      await query("UPDATE resumes SET views = views + 1 WHERE id = ?", [resumeId]);
+    }
 
     // แปลง JSON string เป็น Object — ใช้ helper เดียวกับ load route
     const parseField = (raw, fallback) =>

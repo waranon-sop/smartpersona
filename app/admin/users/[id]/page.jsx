@@ -68,71 +68,92 @@ export default async function EditUserPage({ params }) {
               General Details
             </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Username *
-                </label>
-                <input
-                  type="text"
-                  name="username"
-                  defaultValue={user.name}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm"
-                  required
-                />
+            <div className="flex flex-col md:flex-row gap-8">
+              {/* Profile Picture */}
+              <div className="flex-shrink-0 flex flex-col items-center space-y-3">
+                <div className="w-32 h-32 rounded-full border-4 border-white shadow-md overflow-hidden bg-gray-50 flex items-center justify-center">
+                  {user.profile_pic ? (
+                    <img 
+                      src={user.profile_pic} 
+                      alt={user.name} 
+                      className="w-full h-full object-cover" 
+                    />
+                  ) : (
+                    <UserIcon size={48} className="text-gray-300" />
+                  )}
+                </div>
+                <div className="text-xs font-medium px-2.5 py-1 bg-gray-100 text-gray-600 rounded-full">
+                  Profile Picture
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
-                  New Password (Leave blank to keep current)
-                </label>
-                <input
-                  type="password"
-                  name="password"
-                  placeholder="Enter new password"
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm"
-                />
-              </div>
+              {/* Form Fields */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-grow">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    Username *
+                  </label>
+                  <input
+                    type="text"
+                    name="username"
+                    defaultValue={user.name}
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm"
+                    required
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Email Address (Optional)
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  defaultValue={user.email}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm"
-                />
-              </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    New Password (Leave blank to keep current)
+                  </label>
+                  <input
+                    type="password"
+                    name="password"
+                    placeholder="Enter new password"
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm"
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Role
-                </label>
-                <select
-                  name="role"
-                  defaultValue={user.role}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm cursor-pointer bg-white"
-                >
-                  <option value="User">User</option>
-                  <option value="Admin">Admin</option>
-                </select>
-              </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    Email Address (Optional)
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    defaultValue={user.email}
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm"
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Status
-                </label>
-                <select
-                  name="status"
-                  defaultValue={user.status}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm cursor-pointer bg-white"
-                >
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                  <option value="Suspended">Suspended</option>
-                </select>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    Role
+                  </label>
+                  <select
+                    name="role"
+                    defaultValue={user.role}
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm cursor-pointer bg-white"
+                  >
+                    <option value="User">User</option>
+                    <option value="Admin">Admin</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    Status
+                  </label>
+                  <select
+                    name="status"
+                    defaultValue={user.status}
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm cursor-pointer bg-white"
+                  >
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                    <option value="Suspended">Suspended</option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>

@@ -242,7 +242,7 @@ const ResumeRenderer = memo(function ResumeRenderer({ data }) {
   const sidebar = {
     width: '33%',
     background: t.sidebarBg,
-    padding: '80px 20px 28px 20px',
+    padding: p.profilePic ? '80px 20px 28px 20px' : '36px 20px 28px 20px',
     position: 'relative',
     flexShrink: 0,
     ...(tplId === 'clean_slate' ? { borderRight: '1px solid #e4e4e7' } : {}),
@@ -344,34 +344,23 @@ const ResumeRenderer = memo(function ResumeRenderer({ data }) {
         {/* ─── SIDEBAR ─── */}
         <div style={sidebar}>
           {/* Profile Photo */}
-          <div style={{
-            position: 'absolute',
-            top: -56,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: 112,
-            height: 112,
-            zIndex: 20,
-          }}>
-            {p.profilePic ? (
+          {p.profilePic && (
+            <div style={{
+              position: 'absolute',
+              top: -56,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: 112,
+              height: 112,
+              zIndex: 20,
+            }}>
               <img src={p.profilePic} alt="Profile" style={{
                 width: '100%', height: '100%', borderRadius: '50%',
                 objectFit: 'cover', border: `5px solid ${t.photoBorderColor}`,
                 boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
               }} />
-            ) : (
-              <div style={{
-                width: '100%', height: '100%', borderRadius: '50%',
-                backgroundColor: t.photoFallbackBg,
-                border: `5px solid ${t.photoBorderColor}`,
-                boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                overflow: 'hidden',
-              }}>
-                <div style={{ width: 48, height: 48, borderRadius: '50%', backgroundColor: 'rgba(0,0,0,0.12)' }} />
-              </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Contact */}
           <div style={{ marginBottom: 20 }}>
@@ -379,13 +368,11 @@ const ResumeRenderer = memo(function ResumeRenderer({ data }) {
             <div style={accentBar(t.sidebarAccent)} />
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 9, color: t.sidebarTextColor, fontSize: 11 }}>
               {p.phone && <li style={contactItem}><span style={contactIcon}>📞</span><span>{p.phone}</span></li>}
-              {p.email && <li style={contactItem}><span style={contactIcon}>✉️</span><span style={{ wordBreak: 'break-all' }}>{p.email}</span></li>}
+              {p.email && <li style={contactItem}><span style={contactIcon}>✉️</span><span style={{ wordBreak: 'break-word' }}>{p.email}</span></li>}
               {p.address && <li style={contactItem}><span style={contactIcon}>📍</span><span>{p.address}</span></li>}
-              {p.dateOfBirth && <li style={contactItem}><span style={contactIcon}>🎂</span><span>{fmtDate(p.dateOfBirth)}</span></li>}
-              {p.nationality && <li style={contactItem}><span style={contactIcon}>🌍</span><span>{p.nationality}</span></li>}
-              {p.linkedin && <li style={contactItem}><span style={contactIcon}>in</span><span style={{ wordBreak: 'break-all' }}>{(p.linkedin||"").replace(/^https?:\/\/(www\.)?/, "")}</span></li>}
-              {p.github && <li style={contactItem}><span style={contactIcon}>⌨️</span><span style={{ wordBreak: 'break-all' }}>{(p.github||"").replace(/^https?:\/\/(www\.)?/, "")}</span></li>}
-              {p.portfolio && <li style={contactItem}><span style={contactIcon}>🌐</span><span style={{ wordBreak: 'break-all' }}>{(p.portfolio||"").replace(/^https?:\/\/(www\.)?/, "")}</span></li>}
+              {p.linkedin && <li style={contactItem}><span style={contactIcon}>in</span><span style={{ wordBreak: 'break-word' }}>{(p.linkedin||"").replace(/^https?:\/\/(www\.)?/, "")}</span></li>}
+              {p.github && <li style={contactItem}><span style={contactIcon}>⌨️</span><span style={{ wordBreak: 'break-word' }}>{(p.github||"").replace(/^https?:\/\/(www\.)?/, "")}</span></li>}
+              {p.portfolio && <li style={contactItem}><span style={contactIcon}>🌐</span><span style={{ wordBreak: 'break-word' }}>{(p.portfolio||"").replace(/^https?:\/\/(www\.)?/, "")}</span></li>}
             </ul>
           </div>
 
