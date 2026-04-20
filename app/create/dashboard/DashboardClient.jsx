@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Copy, Trash2, ExternalLink, Check, Loader2, Share2 } from "lucide-react";
+import { Copy, Trash2, Eye, Check, Loader2, Share2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
@@ -122,7 +122,7 @@ export default function DashboardClient({ resumeId, accentColor = "#667eea" }) {
             border: isPublic ? "1px solid #10b98140" : `1px solid ${accentColor}30`,
           }}
         >
-          {isPublishing ? <Loader2 size={14} className="animate-spin" /> : <Share2 size={16} />}
+          {isPublishing ? <Loader2 size={14} className="animate-spin" /> : <Eye size={16} />}
         </button>
 
         <button
@@ -156,7 +156,7 @@ export default function DashboardClient({ resumeId, accentColor = "#667eea" }) {
           border: copied ? "1px solid #10b98140" : `1px solid ${accentColor}30`,
         }}
       >
-        {copied ? <Check size={16} /> : <ExternalLink size={16} />}
+        {copied ? <Check size={16} /> : <Share2 size={16} />}
       </button>
     </div>
   );
