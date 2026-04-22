@@ -2,88 +2,102 @@ import { NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
 /**
- * Next.js Middleware / Proxy
- * รับหน้าที่ด่านหน้า (Firewall) ตรวจสอบและสกัดกั้นการเข้าใช้งาน Page/API เส้นทางสำคัญ
+ * Next.js Middleware / Proxy (Firewall)
+ * จัดการสิทธิ์การเข้าถึง และตรวจสอบ Maintenance Mode (Lockdown)
  */
 export async function proxy(request) {
   const { pathname } = request.nextUrl;
 
-  // 1. Only apply to /admin, /create, /api/admin, and /auth
-  const isAuthRoute = pathname.startsWith("/auth/login") || pathname.startsWith("/auth/register");
-  const isApiRoute = pathname.startsWith("/api/admin");
+  // 1. SKIP: paths ที่ไม่ต้องตรวจอะไรเลย (Static, Favicon, Maintenance Page)
+  const skipAlways = [
+    "/maintenance",
+    "/_next",
+    "/favicon.ico",
+    "/api/settings/maintenance", // API สำคัญที่หน้า maintenance ต้องใช้
+    "/api/settings/public",
+  ];
 
-  if (
-    !pathname.startsWith("/admin") &&
-    !pathname.startsWith("/create") &&
-    !isApiRoute &&
-    !isAuthRoute
-  ) {
+  if (skipAlways.some((p) => pathname.startsWith(p))) {
     return NextResponse.next();
   }
 
-  const cookie = request.cookies.get("token")?.value;
+  // 2. ตรวจสอบ Token เพื่อระบุ Role
+  const token = request.cookies.get("token")?.value;
+  let userRole = null;
+  let userId = null;
 
-  // --------- จัดการส่วนคนยังไม่ล็อกอิน ---------
-  if (!cookie) {
-    if (isApiRoute) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (token) {
+    try {
+      const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+      const { payload } = await jwtVerify(token, secret);
+      userRole = payload.role?.toLowerCase();
+      userId = payload.id;
+    } catch (err) {
+      // Token เสียหรือหมดอายุ
     }
-    // ถ้าตั้งใจมาหน้า Auth อยู่แล้ว ปล่อยผ่าน
-    if (isAuthRoute) {
-      return NextResponse.next();
-    }
-    // เข้าหน้าอื่นแต่ยังไม่ล็อกอิน ให้ดีดไปหน้า Login
-    const loginUrl = new URL("/auth/login", request.url);
-    loginUrl.searchParams.set("from", pathname);
-    return NextResponse.redirect(loginUrl);
   }
 
-  // --------- จัดการส่วนคนล็อกอินแล้ว ---------
-  let payload;
-  try {
-    // 2. Verify Token using jose (Edge-compatible)
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-    const { payload: decodedPayload } = await jwtVerify(cookie, secret);
-    payload = decodedPayload;
-  } catch (err) {
-    console.error("JWT Verify Error in Middleware:", err.message);
-    if (isApiRoute) {
-      return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 });
+  const isAdmin = userRole === "admin";
+
+  // 3. ตรวจสอบ Maintenance Mode (Lockdown)
+  // ถ้าไม่ใช่ Admin ให้เช็คสถานะระบบ
+  if (!isAdmin) {
+    // ยกเว้นหน้า Login และ API บางส่วนเพื่อให้ Admin ยังเข้าทำงานได้
+    const allowDuringMaintenance = [
+      "/auth/login",
+      "/api/auth/login",
+      "/api/auth/verify",
+    ];
+
+    if (!allowDuringMaintenance.some(p => pathname.startsWith(p))) {
+      try {
+        const baseUrl = request.nextUrl.origin;
+        const res = await fetch(`${baseUrl}/api/settings/maintenance`, {
+          cache: "no-store",
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.maintenance === true) {
+            // Redirect non-admin users to maintenance page
+            return NextResponse.redirect(new URL("/maintenance", request.url));
+          }
+        }
+      } catch (error) {
+        console.error("Maintenance check failed in proxy:", error);
+      }
     }
-    if (isAuthRoute) return NextResponse.next();
-    const loginUrl = new URL("/auth/login", request.url);
-    loginUrl.searchParams.set("from", pathname);
-    return NextResponse.redirect(loginUrl);
   }
 
-  const userRole = payload.role?.toLowerCase() || 'user';
+  // 4. จัดการสิทธิ์การเข้าถึง (Original Proxy Logic)
+  const isAuthRoute = pathname.startsWith("/auth/login") || pathname.startsWith("/auth/register");
+  const isApiAdminRoute = pathname.startsWith("/api/admin");
 
-  // 3. ถ้าล็อกอินแล้วและจะพยายามเข้าหน้า Auth อีก ให้ดีดกลับไป Dashboard
-  if (isAuthRoute) {
-    if (userRole === "admin") {
+  // ถ้าล็อกอินแล้วจะเข้าหน้า Login/Register ให้ดีดออก
+  if (token && isAuthRoute) {
+    if (isAdmin) {
       return NextResponse.redirect(new URL("/admin", request.url));
     }
     return NextResponse.redirect(new URL("/create/dashboard", request.url));
   }
 
-  // 4. Admin Route Protection: Must have 'admin' role
-  if (pathname.startsWith("/admin") || isApiRoute) {
-    if (userRole !== "admin") {
-      if (isApiRoute) {
-        return NextResponse.json({ error: 'Forbidden: Admins only' }, { status: 403 });
+  // ป้องกันหน้า /admin และ /api/admin
+  if (pathname.startsWith("/admin") || isApiAdminRoute) {
+    if (!isAdmin) {
+      if (isApiAdminRoute) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
-      // Redirect regular users to their dashboard if they try to access /admin
-      const dashboardUrl = new URL("/create/dashboard", request.url);
-      return NextResponse.redirect(dashboardUrl);
+      return NextResponse.redirect(new URL("/auth/login?from=" + pathname, request.url));
     }
   }
 
-  // 5. Create Route Protection: Admin can't access user side 
+  // ป้องกันหน้า /create (ให้เฉพาะ User ทั่วไปเข้า)
   if (pathname.startsWith("/create")) {
-    if (userRole === "admin") {
-      // Redirect Admins to the admin area if they try to access /create
-      const adminUrl = new URL("/admin", request.url);
-      return NextResponse.redirect(adminUrl);
+    if (!token) {
+      return NextResponse.redirect(new URL("/auth/login?from=" + pathname, request.url));
+    }
+    if (isAdmin) {
+      return NextResponse.redirect(new URL("/admin", request.url));
     }
   }
 
@@ -91,5 +105,13 @@ export async function proxy(request) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/create/:path*", "/api/admin/:path*", "/auth/:path*"],
+  matcher: [
+    /*
+     * Match all paths except:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico, sitemap.xml, robots.txt (metadata files)
+     */
+    "/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
+  ],
 };

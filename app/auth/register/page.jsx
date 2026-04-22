@@ -74,8 +74,10 @@ export default function RegisterPage() {
       .catch((err) => {
         const status = err.response?.status;
         const msg = err.response?.data?.message;
-        if (status === 409) setErrors({ form: msg || "ชื่อผู้ใช้หรืออีเมลนี้มีอยู่ในระบบแล้ว" });
+        if (status === 503) setErrors({ form: msg || "ระบบอยู่ในโหมดปรับปรุง ไม่สามารถสมัครสมาชิกได้ในขณะนี้" });
+        else if (status === 409) setErrors({ form: msg || "ชื่อผู้ใช้หรืออีเมลนี้มีอยู่ในระบบแล้ว" });
         else if (status === 400) setErrors({ form: msg || "กรุณาตรวจสอบข้อมูลอีกครั้ง" });
+        else if (status === 403) setErrors({ form: msg || "การสมัครสมาชิกถูกระงับชั่วคราว" });
         else setErrors({ form: "การสมัครสมาชิกล้มเหลว กรุณาลองใหม่อีกครั้ง" });
       })
       .finally(() => setIsLoading(false));

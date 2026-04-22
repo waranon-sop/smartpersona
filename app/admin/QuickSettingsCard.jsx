@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useTransition, useEffect } from "react";
-import { ShieldCheck, UserPlus, FileWarning, Settings, Loader2 } from "lucide-react";
-import { toggleQuickSetting, performLockdown } from "./actions/adminActions";
+import { ShieldCheck, UserPlus, FileWarning, Settings, Loader2, ShieldX } from "lucide-react";
+import { toggleQuickSetting, performLockdown, liftLockdown } from "./actions/adminActions";
 import { useRouter } from "next/navigation";
 
 export default function QuickSettingsCard({ settings: initialSettings }) {
@@ -59,9 +59,30 @@ export default function QuickSettingsCard({ settings: initialSettings }) {
     });
   };
 
+  const handleLiftLockdown = () => {
+    // อัปเดต UI ทันที
+    setLocalSettings(prev => ({
+      ...prev,
+      allow_registration: "true",
+      maintenance_mode: "false"
+    }));
+
+    startTransition(async () => {
+      const res = await liftLockdown();
+      if (res.success) {
+        router.push("/admin?success=ยกเลิกล็อกดาวน์เรียบร้อยแล้ว");
+        router.refresh();
+      } else {
+        setLocalSettings(initialSettings || {});
+        setError(res.error || "เกิดข้อผิดพลาด");
+      }
+    });
+  };
+
   // allow_registration = "true" หมายถึง "เปิดรับสมัคร" → ล็อค = เมื่อเป็น "false"
   const isRegistrationLocked = localSettings?.allow_registration !== "true";
   const maintenanceMode = localSettings?.maintenance_mode === "true";
+  const isLockedDown = isRegistrationLocked || maintenanceMode;
 
   return (
     <div className="space-y-6">
@@ -116,48 +137,64 @@ export default function QuickSettingsCard({ settings: initialSettings }) {
          {/* Emergency Actions */}
          <div className="pt-5 border-t border-slate-100">
             <div className="flex items-start gap-4 mb-4">
-               <div className="p-2 bg-red-50 text-red-600 rounded-lg">
-                  <ShieldCheck size={20} />
+               <div className={`p-2 rounded-lg ${isLockedDown ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
+                  {isLockedDown ? <ShieldCheck size={20} /> : <ShieldX size={20} />}
                </div>
                <div>
-                  <h4 className="text-sm font-bold text-slate-800">โหมดป้องกันฉุกเฉิน</h4>
+                  <h4 className="text-sm font-bold text-slate-800">
+                    {isLockedDown ? "ยกเลิกล็อกดาวน์" : "โหมดป้องกันฉุกเฉิน"}
+                  </h4>
                   <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                     ตัดการเชื่อมต่อและอายัดเซสชันของผู้ใช้งานที่กำลังออนไลน์ทั้งหมด
+                    {isLockedDown 
+                      ? "เปิดระบบให้ผู้ใช้งานเข้าถึงเว็บไซต์และสมัครสมาชิกได้ตามปกติ" 
+                      : "ตัดการเชื่อมต่อและอายัดเซสชันของผู้ใช้งานที่กำลังออนไลน์ทั้งหมด"
+                    }
                   </p>
                </div>
             </div>
             
-            {!showConfirm ? (
+            {isLockedDown ? (
               <button 
-                onClick={() => setShowConfirm(true)}
+                onClick={handleLiftLockdown}
                 disabled={isPending}
-                className="w-full py-2.5 bg-white border border-red-200 text-red-600 rounded-xl font-bold text-sm hover:bg-red-600 hover:text-white transition-all shadow-sm flex justify-center items-center gap-2 cursor-pointer"
+                className="w-full py-2.5 bg-green-600 text-white rounded-xl font-bold text-sm hover:bg-green-700 transition-all shadow-md shadow-green-600/20 flex justify-center items-center gap-2 cursor-pointer"
               >
-                ดำเนินการล็อกดาวน์
+                {isPending && <Loader2 size={16} className="animate-spin" />}
+                ยกเลิกล็อกดาวน์
               </button>
             ) : (
-              <div className="space-y-3 animate-in zoom-in-95 duration-200">
-                <p className="text-xs font-bold text-red-600 text-center bg-red-50 p-2 rounded-lg">
-                  ⚠️ คุณแน่ใจหรือไม่? ระบบจะหยุดทำงานทันที!
-                </p>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => setShowConfirm(false)}
-                    disabled={isPending}
-                    className="flex-1 py-2 bg-slate-100 text-slate-600 rounded-lg font-bold text-xs hover:bg-slate-200 transition-all cursor-pointer"
-                  >
-                    ยกเลิก
-                  </button>
-                  <button 
-                    onClick={handleExecuteLockdown}
-                    disabled={isPending}
-                    className="flex-[2] py-2 bg-red-600 text-white rounded-lg font-bold text-xs hover:bg-red-700 transition-all shadow-md shadow-red-600/20 flex justify-center items-center gap-2 cursor-pointer"
-                  >
-                    {isPending && <Loader2 size={14} className="animate-spin" />}
-                    {isPending ? "กำลังล็อคดาวน์..." : "ยืนยันการล็อคดาวน์"}
-                  </button>
+              !showConfirm ? (
+                <button 
+                  onClick={() => setShowConfirm(true)}
+                  disabled={isPending}
+                  className="w-full py-2.5 bg-white border border-red-200 text-red-600 rounded-xl font-bold text-sm hover:bg-red-600 hover:text-white transition-all shadow-sm flex justify-center items-center gap-2 cursor-pointer"
+                >
+                  ดำเนินการล็อกดาวน์
+                </button>
+              ) : (
+                <div className="space-y-3 animate-in zoom-in-95 duration-200">
+                  <p className="text-xs font-bold text-red-600 text-center bg-red-50 p-2 rounded-lg">
+                    ⚠️ คุณแน่ใจหรือไม่? ระบบจะหยุดทำงานทันที!
+                  </p>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => setShowConfirm(false)}
+                      disabled={isPending}
+                      className="flex-1 py-2 bg-slate-100 text-slate-600 rounded-lg font-bold text-xs hover:bg-slate-200 transition-all cursor-pointer"
+                    >
+                      ยกเลิก
+                    </button>
+                    <button 
+                      onClick={handleExecuteLockdown}
+                      disabled={isPending}
+                      className="flex-[2] py-2 bg-red-600 text-white rounded-lg font-bold text-xs hover:bg-red-700 transition-all shadow-md shadow-red-600/20 flex justify-center items-center gap-2 cursor-pointer"
+                    >
+                      {isPending && <Loader2 size={14} className="animate-spin" />}
+                      {isPending ? "กำลังล็อคดาวน์..." : "ยืนยันการล็อคดาวน์"}
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )
             )}
          </div>
       </div>

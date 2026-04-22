@@ -345,3 +345,27 @@ export async function performLockdown() {
     return { success: false, error: error.message };
   }
 }
+
+export async function liftLockdown() {
+  const currentUser = await getCurrentUser();
+  if (currentUser?.role?.toLowerCase() !== "admin")
+    return { success: false, error: "Unauthorized" };
+
+  try {
+    // Lift Lockdown: Maintenance Mode OFF, Registration ON
+    await pool.query(
+      "INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?",
+      ["maintenance_mode", "false", "false"]
+    );
+    await pool.query(
+      "INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?",
+      ["allow_registration", "true", "true"]
+    );
+    revalidatePath("/admin");
+    revalidatePath("/admin/settings");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to lift lockdown", error);
+    return { success: false, error: error.message };
+  }
+}

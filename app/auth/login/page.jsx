@@ -66,7 +66,8 @@ function LoginContent() {
       .catch((err) => {
         const status = err.response?.status;
         const serverMessage = err.response?.data?.message;
-        if (status === 404) setErrors({ username: "ไม่พบชื่อผู้ใช้หรืออีเมลนี้ในระบบ" });
+        if (status === 503) setErrors({ form: serverMessage || "ระบบอยู่ในโหมดปรับปรุง กรุณากลับมาใหม่ภายหลัง" });
+        else if (status === 404) setErrors({ username: "ไม่พบชื่อผู้ใช้หรืออีเมลนี้ในระบบ" });
         else if (status === 403) {
           const msg = serverMessage && serverMessage !== "Invalid password"
             ? serverMessage

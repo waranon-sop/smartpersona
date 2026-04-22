@@ -26,6 +26,23 @@ export async function POST(request) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
+    // 4.5 ✅ ตรวจสอบ Maintenance Mode — ถ้าเปิดอยู่ ให้เฉพาะ Admin ล็อกอินได้
+    if (user.role?.toLowerCase() !== "admin") {
+      try {
+        const maintenanceRows = await query(
+          "SELECT setting_value FROM settings WHERE setting_key = 'maintenance_mode'"
+        );
+        if (maintenanceRows.length > 0 && maintenanceRows[0].setting_value === "true") {
+          return NextResponse.json(
+            { message: "ระบบอยู่ในโหมดปรับปรุง ไม่สามารถเข้าสู่ระบบได้ในขณะนี้" },
+            { status: 503 },
+          );
+        }
+      } catch (e) {
+        console.error("Maintenance check in login failed:", e);
+      }
+    }
+
     // 5. ✅ ตรวจสอบสถานะบัญชีก่อนเช็ครหัสผ่าน (เพื่อแสดงข้อความที่ถูกต้อง)
     if (user.status === "Inactive") {
       return NextResponse.json(

@@ -18,6 +18,17 @@ export async function POST(request) {
       );
     }
 
+    // ✅ Check if site is in maintenance mode (lockdown)
+    const maintenanceRows = await query(
+      "SELECT setting_value FROM settings WHERE setting_key = 'maintenance_mode'"
+    );
+    if (maintenanceRows.length > 0 && maintenanceRows[0].setting_value === "true") {
+      return NextResponse.json(
+        { message: "ระบบอยู่ในโหมดปรับปรุง ไม่สามารถสมัครสมาชิกได้ในขณะนี้" },
+        { status: 503 },
+      );
+    }
+
     // Check if registration is locked
     const settings = await query("SELECT setting_value FROM settings WHERE setting_key = 'allow_registration'");
     
