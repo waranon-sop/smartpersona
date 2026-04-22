@@ -148,17 +148,18 @@ export default async function AdminSettingsPage() {
            </div>
 
            {/* Save Action */}
-           <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-lg overflow-hidden p-6 text-white text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-6">
-              <div>
+           <div className="bg-slate-900 border border-slate-800 rounded-3xl shadow-xl overflow-hidden p-6 text-white text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-6 relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-indigo-600/10 pointer-events-none"></div>
+              <div className="relative z-10">
                  <h3 className="font-bold text-lg mb-1">บันทึกการตั้งค่า</h3>
-                 <p className="text-slate-400 text-sm">การเปลี่ยนแปลงจะมีผลทันทีที่ระบบดาวน์โหลดเสร็จสิ้น</p>
+                 <p className="text-slate-400 text-sm">การเปลี่ยนแปลงจะมีผลทันทีที่ระบบประมวลผลเสร็จสิ้น</p>
               </div>
               <button
                 type="submit"
-                className="w-full sm:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-sm shadow-md transition-colors flex items-center justify-center gap-2 group"
+                className="w-full sm:w-auto whitespace-nowrap px-8 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl font-bold text-sm shadow-[0_0_20px_rgba(79,70,229,0.3)] hover:shadow-[0_0_30px_rgba(79,70,229,0.5)] transition-all active:scale-95 flex items-center justify-center gap-2.5 group relative z-10 border border-white/10"
               >
-                <Save size={18} className="group-hover:scale-110 transition-transform" />
-                ยืนยันการตั้งค่า
+                <Save size={18} className="group-hover:-translate-y-0.5 transition-transform" />
+                <span>ยืนยันการตั้งค่า</span>
               </button>
            </div>
         </div>

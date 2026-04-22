@@ -27,6 +27,23 @@ function Counter({ to, suffix = "" }) {
 }
 
 export default function Home() {
+  const [stats, setStats] = useState({ totalUsers: 0, totalResumes: 0 });
+  const [siteName, setSiteName] = useState("Smart Persona");
+
+  useEffect(() => {
+    fetch("/api/stats/public")
+      .then(res => res.json())
+      .then(data => setStats(data))
+      .catch(err => console.error("Fetch stats error:", err));
+      
+    fetch("/api/settings/public")
+      .then(res => res.json())
+      .then(data => {
+        if (data.site_name) setSiteName(data.site_name);
+      })
+      .catch(err => console.error("Fetch settings error:", err));
+  }, []);
+
   const handleCTA = async () => {
     try {
       const res = await fetch("/api/auth/verify");
@@ -64,8 +81,7 @@ export default function Home() {
           </h1>
 
           <p className={styles.heroSub}>
-            สร้าง Resume สวยงามในไม่กี่นาที เลือกเทมเพลตที่ใช่ กรอกข้อมูล
-            แล้วดาวน์โหลดเป็น PDF ได้เลย
+            สร้าง Resume สวยงามในไม่กี่นาที เลือกเทมเพลตที่ใช่ กรอกข้อมูล แล้วดาวน์โหลดเป็น PDF ได้เลย
           </p>
 
           <div className={styles.heroBtns}>
@@ -79,13 +95,13 @@ export default function Home() {
           {/* Stats */}
           <div className={styles.stats}>
             <div className={styles.stat}>
-              <strong><Counter to={500} suffix="+" /></strong>
+              <strong><Counter to={stats.totalUsers} suffix="+" /></strong>
               <span>ผู้ใช้งาน</span>
             </div>
             <div className={styles.statDivider} />
             <div className={styles.stat}>
-              <strong><Counter to={7} /></strong>
-              <span>เทมเพลต</span>
+              <strong><Counter to={stats.totalResumes} /></strong>
+              <span>เรซูเม่ที่ถูกสร้าง</span>
             </div>
             <div className={styles.statDivider} />
             <div className={styles.stat}>
@@ -142,9 +158,9 @@ export default function Home() {
 
         <div className={styles.stepsGrid}>
           {[
-            { n:"01", icon:"🎨", title:"เลือกเทมเพลต", desc:"เลือกดีไซน์ที่เหมาะกับคุณ ทั้งแบบ Classic และ Modern" },
-            { n:"02", icon:"✏️", title:"กรอกข้อมูล", desc:"บันทึกประวัติการทำงาน การศึกษา และทักษะของคุณ" },
-            { n:"03", icon:"📥", title:"ดาวน์โหลด PDF", desc:"Export เป็น PDF คุณภาพสูงพร้อมส่งให้ HR ได้เลย" },
+            { n:"01", icon:"🎨", title: "เลือกเทมเพลต", desc: "เลือกดีไซน์ที่เหมาะกับคุณ ทั้งแบบ Classic และ Modern" },
+            { n:"02", icon:"✏️", title: "กรอกข้อมูล", desc: "บันทึกประวัติการทำงาน การศึกษา และทักษะของคุณ" },
+            { n:"03", icon:"📥", title: "ดาวน์โหลด PDF", desc: "Export เป็น PDF คุณภาพสูงพร้อมส่งให้ HR ได้เลย" },
           ].map((s) => (
             <div key={s.n} className={styles.stepCard}>
               <div className={styles.stepNum}>{s.n}</div>
@@ -165,12 +181,12 @@ export default function Home() {
 
         <div className={styles.featureGrid}>
           {[
-            { icon:"💼", title:"ประสบการณ์หลายอัน", desc:"เพิ่มได้ไม่จำกัด พร้อมช่วงเวลาและรายละเอียด", color:"#dbeafe" },
-            { icon:"🎓", title:"การศึกษาหลายอัน", desc:"บันทึกได้หลายสถาบัน พร้อม GPA", color:"#dcfce7" },
-            { icon:"🖼️", title:"รูปโปรไฟล์", desc:"อัปโหลดรูปภาพประจำตัวพร้อมแสดงใน Resume", color:"#fef3c7" },
-            { icon:"💾", title:"บันทึกอัตโนมัติ", desc:"ข้อมูลถูกบันทึกลงระบบ เปิดเครื่องไหนก็ได้พร้อมกัน", color:"#ede9fe" },
-            { icon:"📱", title:"Responsive Design", desc:"ใช้งานได้ทั้ง PC และมือถือ", color:"#fce7f3" },
-            { icon:"🔒", title:"ข้อมูลปลอดภัย", desc:"ระบบ JWT Authentication ป้องกันข้อมูลส่วนตัว", color:"#ecfdf5" },
+            { icon:"💼", title: "ประสบการณ์หลายอัน", desc: "เพิ่มได้ไม่จำกัด พร้อมช่วงเวลาและรายละเอียด", color:"#dbeafe" },
+            { icon:"🎓", title: "การศึกษาหลายอัน", desc: "บันทึกได้หลายสถาบัน พร้อม GPA", color:"#dcfce7" },
+            { icon:"🖼️", title: "รูปโปรไฟล์", desc: "อัปโหลดรูปภาพประจำตัวพร้อมแสดงใน Resume", color:"#fef3c7" },
+            { icon:"💾", title: "บันทึกอัตโนมัติ", desc: "ข้อมูลถูกบันทึกลงระบบ เปิดเครื่องไหนก็ได้พร้อมกัน", color:"#ede9fe" },
+            { icon:"📱", title: "Responsive Design", desc: "ใช้งานได้ทั้ง PC และมือถือ", color:"#fce7f3" },
+            { icon:"🔒", title: "ข้อมูลปลอดภัย", desc: "ระบบ JWT Authentication ป้องกันข้อมูลส่วนตัว", color:"#ecfdf5" },
           ].map((f) => (
             <div key={f.title} className={styles.featCard}>
               <div className={styles.featIconWrap} style={{background: f.color}}>
@@ -196,10 +212,10 @@ export default function Home() {
       {/* ===== FOOTER ===== */}
       <footer className={styles.footer}>
         <div className={styles.footerLogo}>
-          <div className={styles.footerLogoIcon}>S</div>
-          <span>Smart Persona</span>
+          <div className={styles.footerLogoIcon}>{siteName.charAt(0).toUpperCase()}</div>
+          <span>{siteName}</span>
         </div>
-        <p className={styles.footerText}>© {new Date().getFullYear()} Smart Persona · Resume Builder ฟรีสำหรับทุกคน</p>
+        <p className={styles.footerText}>© {new Date().getFullYear()} {siteName} · Resume Builder ฟรีสำหรับทุกคน</p>
       </footer>
     </div>
   );

@@ -46,7 +46,7 @@ export default async function UniversalSearchPage({ searchParams }) {
           <span className="text-sm font-medium uppercase tracking-wider">Universal Search</span>
         </div>
         <h1 className="text-3xl font-bold text-slate-900">
-          ผลการค้นหาสำหรับ <span className="text-blue-600">"{queryParam}"</span>
+          ผลการค้นหาสำหรับ <span className="text-blue-600">&quot;{queryParam}&quot;</span>
         </h1>
         <p className="text-slate-500">พบผู้ใช้ {users.length} ราย และเรซูเม่ {resumes.length} ชุดที่ตรงกับคำค้นหาของคุณ</p>
       </section>
@@ -102,7 +102,7 @@ export default async function UniversalSearchPage({ searchParams }) {
             ))}
             {users.length === 0 && !error && (
               <div className="py-12 border-2 border-dashed border-slate-100 rounded-3xl text-center">
-                <p className="text-slate-400 font-medium">ไม่พบผู้ใช้งานที่ตรงกับ "{queryParam}"</p>
+                <p className="text-slate-400 font-medium">ไม่พบผู้ใช้งานที่ตรงกับ &quot;{queryParam}&quot;</p>
               </div>
             )}
           </div>
@@ -167,7 +167,7 @@ export default async function UniversalSearchPage({ searchParams }) {
             ))}
             {resumes.length === 0 && !error && (
               <div className="py-12 border-2 border-dashed border-slate-100 rounded-3xl text-center">
-                <p className="text-slate-400 font-medium">ไม่พบเรซูเม่ที่ตรงกับ "{queryParam}"</p>
+                <p className="text-slate-400 font-medium">ไม่พบเรซูเม่ที่ตรงกับ &quot;{queryParam}&quot;</p>
               </div>
             )}
           </div>

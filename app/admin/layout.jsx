@@ -1,6 +1,7 @@
 import { getCurrentUser } from "@/lib/session";
 import { redirect } from "next/navigation";
 import { getUnreadNotifications } from './actions/notificationActions';
+import { getSettings } from './actions/adminActions';
 import AdminLayoutClient from "./AdminLayoutClient";
 
 /**
@@ -20,6 +21,8 @@ export default async function AdminLayout({ children }) {
   }
 
   const initialNotifications = await getUnreadNotifications();
+  const settings = await getSettings();
+  const siteName = settings.site_name || "SmartPersona";
 
-  return <AdminLayoutClient user={user} initialNotifications={initialNotifications}>{children}</AdminLayoutClient>;
+  return <AdminLayoutClient user={user} initialNotifications={initialNotifications} siteName={siteName}>{children}</AdminLayoutClient>;
 }

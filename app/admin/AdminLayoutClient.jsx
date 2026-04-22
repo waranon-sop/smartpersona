@@ -17,9 +17,15 @@ import {
   CheckCheck
 } from 'lucide-react';
 import { useState, useTransition } from 'react';
-import { markAllAsRead } from './actions/notificationActions';
+import { 
+  markAllAsRead, 
+  deleteNotification 
+} from './actions/notificationActions';
+import AdminMessage from '@/components/admin/AdminMessage';
+import { Trash2 } from 'lucide-react';
+import UserMenu from '@/components/create/UserMenu';
 
-export default function AdminLayoutClient({ children, user, initialNotifications = [] }) {
+export default function AdminLayoutClient({ children, user, initialNotifications = [], siteName = "SmartPersona" }) {
   const router = useRouter();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -59,17 +65,26 @@ export default function AdminLayoutClient({ children, user, initialNotifications
     });
   };
 
+  const handleDeleteNotification = async (id, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    startTransition(async () => {
+      await deleteNotification(id);
+    });
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row font-sans text-slate-800 selection:bg-blue-100 selection:text-blue-700">
+      <AdminMessage />
       {/* Sidebar - Desktop */}
       <aside className="w-64 bg-white/80 backdrop-blur-xl border-r border-slate-200 hidden md:flex flex-col sticky top-0 h-screen z-40">
         <div className="p-8 flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-600/20">
-            <Hexagon size={24} fill="currentColor" className="text-white/20" />
+          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-600/20 font-bold text-xl">
+            {siteName.charAt(0).toUpperCase()}
           </div>
           <div>
             <h1 className="text-lg font-bold text-slate-900 tracking-tight leading-tight">
-              SmartPersona
+              {siteName}
             </h1>
             <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider">
               คอนโซลผู้ดูแลระบบ
@@ -172,12 +187,21 @@ export default function AdminLayoutClient({ children, user, initialNotifications
                      {initialNotifications.length > 0 ? (
                         <div className="divide-y divide-slate-50">
                            {initialNotifications.map((notif) => (
-                             <Link key={notif.id} href={notif.link} className="block p-4 hover:bg-slate-50 transition-colors">
-                                <p className="text-sm text-slate-700">{notif.message}</p>
-                                <span className="text-[10px] text-slate-400 mt-1 block">
-                                  {new Date(notif.created_at).toLocaleString('th-TH')}
-                                </span>
-                             </Link>
+                             <div key={notif.id} className="relative group/notif">
+                               <Link href={notif.link} className="block p-4 hover:bg-slate-50 transition-colors pr-12">
+                                  <p className="text-sm text-slate-700">{notif.message}</p>
+                                  <span className="text-[10px] text-slate-400 mt-1 block">
+                                    {new Date(notif.created_at).toLocaleString('th-TH')}
+                                  </span>
+                               </Link>
+                               <button 
+                                 onClick={(e) => handleDeleteNotification(notif.id, e)}
+                                 className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg opacity-0 group-hover/notif:opacity-100 transition-all"
+                                 title="ลบการแจ้งเตือน"
+                               >
+                                 <Trash2 size={14} />
+                               </button>
+                             </div>
                            ))}
                         </div>
                      ) : (
@@ -204,14 +228,12 @@ export default function AdminLayoutClient({ children, user, initialNotifications
               )}
             </div>
             
-            <div className="flex items-center gap-3 pl-5 border-l border-slate-200 cursor-pointer group">
+            <div className="flex items-center gap-3 pl-5 border-l border-slate-200">
               <div className="flex flex-col items-end hidden sm:block">
                 <span className="text-sm font-semibold text-slate-800 tracking-tight block max-w-[120px] truncate" title={adminName}>{adminName}</span>
                 <span className="text-xs text-slate-500">ผู้ดูแลระบบ</span>
               </div>
-              <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-blue-600/20 group-hover:ring-4 ring-blue-50 transition-all">
-                {avatarLetter}
-              </div>
+              <UserMenu userName={adminName} onLogout={handleLogout} />
             </div>
           </div>
         </header>
@@ -221,10 +243,10 @@ export default function AdminLayoutClient({ children, user, initialNotifications
         <aside className={`fixed inset-y-0 left-0 w-72 bg-white z-[60] transform transition-transform duration-300 ease-in-out md:hidden flex flex-col shadow-2xl ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <div className="p-6 border-b border-slate-100 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
-                <Hexagon size={18} fill="currentColor" className="text-white/20" />
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
+                {siteName.charAt(0).toUpperCase()}
               </div>
-              <h1 className="text-lg font-bold tracking-tight">SmartPersona</h1>
+              <h1 className="text-lg font-bold tracking-tight">{siteName}</h1>
             </div>
             <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg">
               <X size={20} />

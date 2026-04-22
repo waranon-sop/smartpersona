@@ -1,10 +1,12 @@
 import { ArrowLeft, Save, User as UserIcon } from "lucide-react";
 import Link from "next/link";
 import { createUser } from "@/app/admin/actions/adminActions";
+import AdminMessage from "@/components/admin/AdminMessage";
 
 export default function NewUserPage() {
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
+      <AdminMessage />
       <div className="flex items-center gap-4">
         <Link
           href="/admin/users"
@@ -51,9 +53,10 @@ export default function NewUserPage() {
                 <input
                   type="password"
                   name="password"
-                  placeholder="Create a password"
+                  placeholder="Create a password (min 6 characters)"
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm"
                   required
+                  minLength={6}
                 />
               </div>
 

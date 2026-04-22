@@ -28,7 +28,7 @@ export async function POST(request) {
     }
 
     const sourceContent = await query(
-      "SELECT config, personal, education, experience, summary, skills FROM resume_content WHERE resume_id = ?",
+      "SELECT config, personal, education, experience, summary, skills, languages, certifications, projects FROM resume_content WHERE resume_id = ?",
       [id]
     );
 
@@ -46,8 +46,8 @@ export async function POST(request) {
     // 3. Insert ลงตาราง resume_content (safe-stringify ป้องกัน null crash)
     const safeStr = (v) => (v != null ? (typeof v === "string" ? v : JSON.stringify(v)) : "null");
     await query(
-      `INSERT INTO resume_content (resume_id, config, personal, education, experience, summary, skills)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO resume_content (resume_id, config, personal, education, experience, summary, skills, languages, certifications, projects)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         newId,
         safeStr(content.config),
@@ -56,6 +56,9 @@ export async function POST(request) {
         safeStr(content.experience),
         safeStr(content.summary),
         safeStr(content.skills),
+        safeStr(content.languages),
+        safeStr(content.certifications),
+        safeStr(content.projects),
       ]
     );
 

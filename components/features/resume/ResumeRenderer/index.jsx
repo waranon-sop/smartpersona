@@ -18,7 +18,7 @@ const renderDetails = (text, color) => {
   if (!text) return null;
   const lines = text.split('\n').filter(l => l.trim());
   return (
-    <div style={{ fontSize: 10.5, lineHeight: 1.7, color }}>
+    <div style={{ fontSize: 11.5, lineHeight: 1.6, color }}>
       {lines.map((line, i) => {
         const trimmed = line.trim();
         const isBullet = /^[•\-\*]/.test(trimmed);
@@ -36,11 +36,163 @@ const renderDetails = (text, color) => {
   );
 };
 
+/* ═════════════════ ATS PROFESSIONAL RENDERER ═════════════════ */
+const CleanSlateRenderer = memo(function CleanSlateRenderer({ data, theme }) {
+  const p = data.personal || {};
+  const s = data.summary || {};
+  const sk = data.skills || {};
+  const ex = (data.experiences || []).filter(e => e.position || e.company);
+  const ed = (data.educations || []).filter(e => e.degree || e.institution);
+  const proj = (data.projects || []).filter(pr => pr.name);
+  const cert = (data.certifications || []).filter(c => c.name);
+
+  const fullName = `${p.firstName || ""} ${p.lastName || ""}`.trim();
+  const skills = sk.list ? sk.list.split(",").map(st => st.trim()).filter(Boolean) : [];
+
+  const pageStyle = {
+    fontFamily: theme.fontFamily || "'Inter', 'Helvetica Neue', sans-serif",
+    backgroundColor: '#ffffff',
+    color: '#111827',
+    width: '100%',
+    minHeight: '297mm',
+    padding: '48px 56px',
+    boxSizing: 'border-box',
+    lineHeight: 1.6,
+  };
+
+  const sectionTitleStyle = {
+    fontSize: 13,
+    fontWeight: 700,
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+    color: '#000000',
+    borderBottom: '1px solid #d1d5db',
+    paddingBottom: 4,
+    marginBottom: 12,
+    marginTop: 20,
+  };
+
+  const contactText = [
+    p.email,
+    p.phone,
+    p.address,
+    p.linkedin && p.linkedin.replace(/^https?:\/\/(www\.)?/, ""),
+    p.github && p.github.replace(/^https?:\/\/(www\.)?/, ""),
+    p.portfolio && p.portfolio.replace(/^https?:\/\/(www\.)?/, ""),
+  ].filter(Boolean).join("  •  ");
+
+  return (
+    <div style={pageStyle}>
+      {/* Header */}
+      <div style={{ textAlign: 'center', marginBottom: 24 }}>
+        <h1 style={{ fontSize: 26, fontWeight: 800, margin: '0 0 4px 0', color: '#000', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{fullName || "YOUR NAME"}</h1>
+        {p.jobTitle && <div style={{ fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{p.jobTitle}</div>}
+        <div style={{ fontSize: 10.5, color: '#4b5563' }}>{contactText}</div>
+      </div>
+
+      {/* Summary */}
+      {s.details && (
+        <div style={{ marginBottom: 16 }}>
+          <div style={sectionTitleStyle}>Professional Summary</div>
+          <p style={{ fontSize: 11, margin: 0, textAlign: 'justify', color: '#374151' }}>{s.details}</p>
+        </div>
+      )}
+
+      {/* Experience */}
+      {ex.length > 0 && (
+        <div style={{ marginBottom: 16 }}>
+          <div style={sectionTitleStyle}>Work Experience</div>
+          {ex.map((item, i) => (
+            <div key={i} style={{ marginBottom: 12 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#111827' }}>{item.position}</div>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#374151' }}>
+                  {fmtDate(item.startDate)} – {fmtDate(item.endDate, item.isCurrent)}
+                </div>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 4 }}>
+                <div style={{ fontSize: 11, fontStyle: 'italic', color: '#4b5563' }}>{item.company}{item.location && `, ${item.location}`}</div>
+              </div>
+              {renderDetails(item.details, '#374151')}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Education */}
+      {ed.length > 0 && (
+        <div style={{ marginBottom: 16 }}>
+          <div style={sectionTitleStyle}>Education</div>
+          {ed.map((item, i) => (
+            <div key={i} style={{ marginBottom: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#111827' }}>{item.institution}{item.location && `, ${item.location}`}</div>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#374151' }}>
+                  {item.startYear ? `${fmtDate(item.startYear)} – ` : ""}{fmtDate(item.gradYear)}
+                </div>
+              </div>
+              <div style={{ fontSize: 11, color: '#374151' }}>
+                {item.degree}{item.field && ` in ${item.field}`}
+                {item.gpa && `  •  GPA: ${item.gpa}`}
+              </div>
+              {item.activities && <div style={{ fontSize: 10.5, marginTop: 2, color: '#4b5563' }}>{item.activities}</div>}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Projects */}
+      {proj.length > 0 && (
+        <div style={{ marginBottom: 16 }}>
+          <div style={sectionTitleStyle}>Projects</div>
+          {proj.map((item, i) => (
+            <div key={i} style={{ marginBottom: 12 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 2 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#111827' }}>
+                  {item.name}
+                  {item.tech && <span style={{ fontWeight: 400, fontStyle: 'italic', color: '#4b5563' }}> | {item.tech}</span>}
+                </div>
+                {item.url && <div style={{ fontSize: 10, color: '#4b5563' }}>{item.url.replace(/^https?:\/\/(www\.)?/, "")}</div>}
+              </div>
+              {item.role && <div style={{ fontSize: 11, marginBottom: 2, color: '#374151' }}>Role: {item.role}</div>}
+              {renderDetails(item.description, '#374151')}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Skills */}
+      {skills.length > 0 && (
+        <div style={{ marginBottom: 16 }}>
+          <div style={sectionTitleStyle}>Skills</div>
+          <div style={{ fontSize: 11, color: '#374151', lineHeight: 1.8 }}>
+            {skills.join("  •  ")}
+          </div>
+        </div>
+      )}
+
+      {/* Certifications */}
+      {cert.length > 0 && (
+        <div style={{ marginBottom: 16 }}>
+          <div style={sectionTitleStyle}>Certifications</div>
+          {cert.map((item, i) => (
+            <div key={i} style={{ fontSize: 11, marginBottom: 4, color: '#374151' }}>
+              <strong style={{ color: '#111827' }}>{item.name}</strong>
+              {item.issuer && ` – ${item.issuer}`}
+              {item.year && ` (${item.year})`}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+});
+
 const ResumeRenderer = memo(function ResumeRenderer({ data }) {
   if (!data) return <div style={{ padding: 32, color: '#999', fontStyle: 'italic' }}>No data available</div>;
 
-  const tplId = data.config?.template || "modern";
-  const t = THEMES[tplId] || THEMES.modern;
+  const tplId = data.config?.template || "clean_slate";
+  const t = THEMES[tplId] || THEMES.clean_slate;
 
   const p = data.personal || {};
   const s = data.summary || {};
@@ -54,13 +206,19 @@ const ResumeRenderer = memo(function ResumeRenderer({ data }) {
   const fullName = `${p.firstName || ""} ${p.lastName || ""}`.trim();
   const skills = sk.list ? sk.list.split(",").map(s => s.trim()).filter(Boolean) : [];
 
+  if (tplId === 'clean_slate') {
+    return <CleanSlateRenderer data={data} theme={t} />;
+  }
+
   /* ── Inline styles ── */
   const page = {
     fontFamily: t.fontFamily,
     backgroundColor: t.pageBg,
     color: t.mainTextColor,
+    lineHeight: 1.5,
+    fontSize: 12,
     width: '100%',
-    minHeight: 1056,
+    minHeight: '297mm',
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
@@ -84,7 +242,7 @@ const ResumeRenderer = memo(function ResumeRenderer({ data }) {
   const sidebar = {
     width: '33%',
     background: t.sidebarBg,
-    padding: '80px 20px 28px 20px',
+    padding: p.profilePic ? '80px 20px 28px 20px' : '36px 20px 28px 20px',
     position: 'relative',
     flexShrink: 0,
     ...(tplId === 'clean_slate' ? { borderRight: '1px solid #e4e4e7' } : {}),
@@ -97,12 +255,12 @@ const ResumeRenderer = memo(function ResumeRenderer({ data }) {
   };
 
   const sectionHeadingStyle = (color) => ({
-    fontSize: 10,
+    fontSize: 11.5,
     fontWeight: 800,
     textTransform: 'uppercase',
-    letterSpacing: '0.18em',
+    letterSpacing: '0.12em',
     color,
-    marginBottom: 6,
+    marginBottom: 8,
   });
 
   const accentBar = (color, width = 24) => ({
@@ -186,48 +344,35 @@ const ResumeRenderer = memo(function ResumeRenderer({ data }) {
         {/* ─── SIDEBAR ─── */}
         <div style={sidebar}>
           {/* Profile Photo */}
-          <div style={{
-            position: 'absolute',
-            top: -56,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: 112,
-            height: 112,
-            zIndex: 20,
-          }}>
-            {p.profilePic ? (
+          {p.profilePic && (
+            <div style={{
+              position: 'absolute',
+              top: -56,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: 112,
+              height: 112,
+              zIndex: 20,
+            }}>
               <img src={p.profilePic} alt="Profile" style={{
                 width: '100%', height: '100%', borderRadius: '50%',
                 objectFit: 'cover', border: `5px solid ${t.photoBorderColor}`,
                 boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
               }} />
-            ) : (
-              <div style={{
-                width: '100%', height: '100%', borderRadius: '50%',
-                backgroundColor: t.photoFallbackBg,
-                border: `5px solid ${t.photoBorderColor}`,
-                boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                overflow: 'hidden',
-              }}>
-                <div style={{ marginTop: 20, width: 48, height: 48, borderRadius: '50%', backgroundColor: 'rgba(0,0,0,0.12)' }} />
-              </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Contact */}
           <div style={{ marginBottom: 20 }}>
             <div style={sectionHeadingStyle(t.sidebarHeadingColor)}>Contact</div>
             <div style={accentBar(t.sidebarAccent)} />
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 7, color: t.sidebarTextColor }}>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 9, color: t.sidebarTextColor, fontSize: 11 }}>
               {p.phone && <li style={contactItem}><span style={contactIcon}>📞</span><span>{p.phone}</span></li>}
-              {p.email && <li style={contactItem}><span style={contactIcon}>✉️</span><span style={{ wordBreak: 'break-all' }}>{p.email}</span></li>}
+              {p.email && <li style={contactItem}><span style={contactIcon}>✉️</span><span style={{ wordBreak: 'break-word' }}>{p.email}</span></li>}
               {p.address && <li style={contactItem}><span style={contactIcon}>📍</span><span>{p.address}</span></li>}
-              {p.dateOfBirth && <li style={contactItem}><span style={contactIcon}>🎂</span><span>{fmtDate(p.dateOfBirth)}</span></li>}
-              {p.nationality && <li style={contactItem}><span style={contactIcon}>🌍</span><span>{p.nationality}</span></li>}
-              {p.linkedin && <li style={contactItem}><span style={contactIcon}>in</span><span style={{ wordBreak: 'break-all' }}>{(p.linkedin||"").replace(/^https?:\/\/(www\.)?/, "")}</span></li>}
-              {p.github && <li style={contactItem}><span style={contactIcon}>⌨️</span><span style={{ wordBreak: 'break-all' }}>{(p.github||"").replace(/^https?:\/\/(www\.)?/, "")}</span></li>}
-              {p.portfolio && <li style={contactItem}><span style={contactIcon}>🌐</span><span style={{ wordBreak: 'break-all' }}>{(p.portfolio||"").replace(/^https?:\/\/(www\.)?/, "")}</span></li>}
+              {p.linkedin && <li style={contactItem}><span style={contactIcon}>in</span><span style={{ wordBreak: 'break-word' }}>{(p.linkedin||"").replace(/^https?:\/\/(www\.)?/, "")}</span></li>}
+              {p.github && <li style={contactItem}><span style={contactIcon}>⌨️</span><span style={{ wordBreak: 'break-word' }}>{(p.github||"").replace(/^https?:\/\/(www\.)?/, "")}</span></li>}
+              {p.portfolio && <li style={contactItem}><span style={contactIcon}>🌐</span><span style={{ wordBreak: 'break-word' }}>{(p.portfolio||"").replace(/^https?:\/\/(www\.)?/, "")}</span></li>}
             </ul>
           </div>
 
@@ -242,7 +387,7 @@ const ResumeRenderer = memo(function ResumeRenderer({ data }) {
                     display: 'inline-block',
                     padding: '2px 8px',
                     borderRadius: 4,
-                    fontSize: 9,
+                    fontSize: 10.5,
                     fontWeight: 600,
                     backgroundColor: t.skillBg,
                     color: t.skillText,

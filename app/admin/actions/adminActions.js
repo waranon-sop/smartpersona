@@ -55,27 +55,39 @@ export async function createUser(formData) {
   const role = formData.get("role");
   const status = formData.get("status");
 
+  let errorMsg = null;
   try {
     // Basic validation
     if (!name || !email || !password)
       throw new Error("username, email and password are required");
     const emailRe = /^\S+@\S+\.\S+$/;
     if (!emailRe.test(email)) throw new Error("Invalid email format");
-    if (String(password).length < 8)
-      throw new Error("Password must be at least 8 characters");
+    if (String(password).length < 6)
+      throw new Error("Password must be at least 6 characters");
     const allowedRoles = ["admin", "user", "Admin", "User"];
     const allowedStatus = ["Active", "Inactive", "Suspended"];
     if (role && !allowedRoles.includes(role)) throw new Error("Invalid role");
     if (status && !allowedStatus.includes(status))
       throw new Error("Invalid status");
     const hashedPassword = await bcrypt.hash(password, 10);
-    await pool.query(
+    const [result] = await pool.query(
       "INSERT INTO users (name, email, password, role, status) VALUES (?, ?, ?, ?, ?)",
       [name, email, hashedPassword, role, status],
     );
+    const userId = result.insertId;
+    if (userId) {
+      await pool.query(
+        "INSERT INTO user_emails (user_id, email, is_primary) VALUES (?, ?, ?)",
+        [userId, email, true]
+      );
+    }
   } catch (error) {
     console.error("Failed to create user:", error);
-    throw new Error(error.message || "Failed to create user");
+    errorMsg = error.message;
+  }
+
+  if (errorMsg) {
+    redirect("/admin/users/new?error=" + encodeURIComponent(errorMsg));
   }
 
   revalidatePath("/admin/users");
@@ -116,6 +128,16 @@ export async function updateUser(id, formData) {
         [name, email, role, status, id],
       );
     }
+
+    // Sync primary email in user_emails table
+    if (email) {
+      const [primaryCheck] = await pool.query("SELECT id FROM user_emails WHERE user_id = ? AND is_primary = true", [id]);
+      if (primaryCheck.length > 0) {
+        await pool.query("UPDATE user_emails SET email = ? WHERE id = ?", [email, primaryCheck[0].id]);
+      } else {
+        await pool.query("INSERT INTO user_emails (user_id, email, is_primary) VALUES (?, ?, true)", [id, email]);
+      }
+    }
   } catch (error) {
     console.error("Failed to update user:", error);
     throw new Error(error.message || "Failed to update user");
@@ -131,21 +153,21 @@ export async function deleteUser(id) {
   if (currentUser?.role?.toLowerCase() !== "admin")
     throw new Error("Unauthorized");
 
-  let isSuccess = false;
+  let errorMsg = null;
   try {
     await pool.query("DELETE FROM users WHERE id = ?", [id]);
-    isSuccess = true;
   } catch (error) {
     console.error("Failed to delete user:", error);
+    errorMsg = error.message;
   }
 
-  if (isSuccess) {
-    revalidatePath("/admin/users");
-    revalidatePath("/admin");
-    redirect("/admin/users?success=User+deleted+successfully&t=" + Date.now());
-  } else {
-    redirect("/admin/users?error=Failed+to+delete+user");
+  if (errorMsg) {
+    redirect("/admin/users?error=" + encodeURIComponent(errorMsg));
   }
+
+  revalidatePath("/admin/users");
+  revalidatePath("/admin");
+  redirect("/admin/users?success=User+deleted+successfully&t=" + Date.now());
 }
 
 export async function updateUserStatus(id, newStatus) {
@@ -176,21 +198,21 @@ export async function deleteResume(id) {
   if (currentUser?.role?.toLowerCase() !== "admin")
     throw new Error("Unauthorized");
 
-  let isSuccess = false;
+  let errorMsg = null;
   try {
     await pool.query("DELETE FROM resumes WHERE id = ?", [id]);
-    isSuccess = true;
   } catch (error) {
     console.error("Failed to delete resume:", error);
+    errorMsg = error.message;
   }
 
-  if (isSuccess) {
-    revalidatePath("/admin/resumes");
-    revalidatePath("/admin");
-    redirect("/admin/resumes?success=Resume+deleted+successfully&t=" + Date.now());
-  } else {
-    redirect("/admin/resumes?error=Failed+to+delete+resume");
+  if (errorMsg) {
+    redirect("/admin/resumes?error=" + encodeURIComponent(errorMsg));
   }
+
+  revalidatePath("/admin/resumes");
+  revalidatePath("/admin");
+  redirect("/admin/resumes?success=Resume+deleted+successfully&t=" + Date.now());
 }
 
 // Settings Actions
@@ -295,9 +317,17 @@ export async function toggleQuickSetting(key, stringValue) {
 export async function performLockdown() {
   const currentUser = await getCurrentUser();
   if (currentUser?.role?.toLowerCase() !== "admin")
-    throw new Error("Unauthorized");
+    return { success: false, error: "Unauthorized" };
 
   try {
+    // Ensure table exists
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS settings (
+        setting_key VARCHAR(50) PRIMARY KEY,
+        setting_value TEXT
+      )
+    `);
+
     // Soft Lockdown: Maintenance Mode ON, Registration OFF
     await pool.query(
       "INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?",
@@ -312,6 +342,30 @@ export async function performLockdown() {
     return { success: true };
   } catch (error) {
     console.error("Failed to lockdown", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function liftLockdown() {
+  const currentUser = await getCurrentUser();
+  if (currentUser?.role?.toLowerCase() !== "admin")
+    return { success: false, error: "Unauthorized" };
+
+  try {
+    // Lift Lockdown: Maintenance Mode OFF, Registration ON
+    await pool.query(
+      "INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?",
+      ["maintenance_mode", "false", "false"]
+    );
+    await pool.query(
+      "INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?",
+      ["allow_registration", "true", "true"]
+    );
+    revalidatePath("/admin");
+    revalidatePath("/admin/settings");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to lift lockdown", error);
     return { success: false, error: error.message };
   }
 }

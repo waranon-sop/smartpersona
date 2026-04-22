@@ -31,9 +31,9 @@ export async function GET(request) {
     }
 
     const row = results[0];
-    
-    // ✅ Increment view count every time the resume is loaded
-    await query("UPDATE resumes SET views = views + 1 WHERE id = ?", [resumeId]);
+
+    // ❌ เอา view increment ออก — owner เปิดดู resume ตัวเองไม่ควรนับเป็น views
+    // views จะนับเฉพาะจาก /api/resume/public (visitor ดู public resume) เท่านั้น
 
     // Parse JSON strings — DB stores "education"/"experience" columns (singular)
     // but the frontend ResumeContext uses "educations"/"experiences" (plural arrays)

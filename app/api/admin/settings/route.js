@@ -75,17 +75,18 @@ export async function POST(request) {
 
     const body = await request.json();
 
-    // Convert booleanish to string false/true for DB consistency with UI
-    const notifyNewUser = String(
-      body.notifyNewUser === "true" || body.notifyNewUser === true,
+    // Convert booleanish to string "true"/"false" for DB consistency
+    const allowRegistration = String(
+      body.allow_registration === "true" || body.allow_registration === true,
     );
-    const weeklyReport = String(
-      body.weeklyReport === "true" || body.weeklyReport === true,
+    const maintenanceMode = String(
+      body.maintenance_mode === "true" || body.maintenance_mode === true,
     );
 
     // Basic validation
     const emailRe = /^\S+@\S+\.\S+$/;
-    if (body.supportEmail && !emailRe.test(body.supportEmail)) {
+    const contactEmail = body.supportEmail || body.contact_email;
+    if (contactEmail && !emailRe.test(contactEmail)) {
       return NextResponse.json(
         { error: "Invalid supportEmail" },
         { status: 400 },
@@ -93,16 +94,16 @@ export async function POST(request) {
     }
 
     const settingsToSave = [
-      ["platformName", body.platformName],
-      ["supportEmail", body.supportEmail],
-      ["notifyNewUser", notifyNewUser],
-      ["weeklyReport", weeklyReport],
+      ["site_name", body.platformName || body.site_name],
+      ["contact_email", contactEmail],
+      ["allow_registration", allowRegistration],
+      ["maintenance_mode", maintenanceMode],
     ];
 
     for (const [key, val] of settingsToSave) {
       if (val !== undefined && val !== null) {
         await pool.query(
-          "INSERT INTO platform_settings (key_name, value_data) VALUES (?, ?) ON DUPLICATE KEY UPDATE value_data = ?",
+          "INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?",
           [key, val, val],
         );
       }

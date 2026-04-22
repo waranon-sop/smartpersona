@@ -1,8 +1,63 @@
--- SmartPersona Database Dump
-CREATE DATABASE IF NOT EXISTS smartpersona_db;
-USE smartpersona_db;
+﻿-- MySQL dump 10.13  Distrib 9.6.0, for Linux (x86_64)
+--
+-- Host: localhost    Database: smartpersona_db
+-- ------------------------------------------------------
+-- Server version	9.6.0
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+SET @MYSQLDUMP_TEMP_LOG_BIN = @@SESSION.SQL_LOG_BIN;
+SET @@SESSION.SQL_LOG_BIN= 0;
+
+--
+-- GTID state at the beginning of the backup 
+--
+
+SET @@GLOBAL.GTID_PURGED=/*!80000 '+'*/ 'e7862491-3ca9-11f1-897d-8e641e2bd43b:1-1275';
+
+--
+-- Table structure for table `notifications`
+--
+
+DROP TABLE IF EXISTS `notifications`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `notifications` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `message` varchar(255) NOT NULL,
+  `type` varchar(50) DEFAULT 'system',
+  `link` varchar(255) DEFAULT '#',
+  `is_read` tinyint(1) DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `notifications`
+--
+
+LOCK TABLES `notifications` WRITE;
+/*!40000 ALTER TABLE `notifications` DISABLE KEYS */;
+INSERT INTO `notifications` VALUES (1,'α╕íα╕╡α╕£α╕╣α╣ëα╕¬α╕íα╕▒α╕äα╕úα╕¬α╕íα╕▓α╕èα╕┤α╕üα╣âα╕½α╕íα╣ê: admin','user','/admin/users',0,'2026-04-19 14:47:07'),(2,'α╕íα╕╡α╕£α╕╣α╣ëα╕¬α╕íα╕▒α╕äα╕úα╕¬α╕íα╕▓α╕èα╕┤α╕üα╣âα╕½α╕íα╣ê: Admin','user','/admin/users',0,'2026-04-19 15:17:59'),(3,'α╕íα╕╡α╕üα╕▓α╕úα╕¬α╕úα╣ëα╕▓α╕çα╣Çα╕úα╕ïα╕╣α╣Çα╕íα╣êα╣âα╕½α╕íα╣ê: α╕üα╕ƒα╕üα╕ƒ Resume','resume','/admin/resumes/d16f11da-6a7c-47aa-8a7e-3910893c89f8',0,'2026-04-19 17:10:52'),(4,'α╕íα╕╡α╕üα╕▓α╕úα╕¬α╕úα╣ëα╕▓α╕çα╣Çα╕úα╕ïα╕╣α╣Çα╕íα╣êα╣âα╕½α╕íα╣ê: Waranom Soprok Resume','resume','/admin/resumes/4010e3cc-7417-416a-902f-cb222cfa0701',0,'2026-04-19 17:10:59'),(5,'α╕íα╕╡α╕£α╕╣α╣ëα╕¬α╕íα╕▒α╕äα╕úα╕¬α╕íα╕▓α╕èα╕┤α╕üα╣âα╕½α╕íα╣ê: Pol','user','/admin/users',0,'2026-04-19 17:47:31'),(6,'α╕íα╕╡α╕£α╕╣α╣ëα╕¬α╕íα╕▒α╕äα╕úα╕¬α╕íα╕▓α╕èα╕┤α╕üα╣âα╕½α╕íα╣ê: Apple','user','/admin/users',0,'2026-04-19 19:09:21'),(7,'α╕íα╕╡α╕£α╕╣α╣ëα╕¬α╕íα╕▒α╕äα╕úα╕¬α╕íα╕▓α╕èα╕┤α╕üα╣âα╕½α╕íα╣ê: α╣äα╕¢α╕¢α╣î','user','/admin/users',0,'2026-04-19 19:31:21'),(8,'α╕íα╕╡α╕£α╕╣α╣ëα╕¬α╕íα╕▒α╕äα╕úα╕¬α╕íα╕▓α╕èα╕┤α╕üα╣âα╕½α╕íα╣ê: Banana','user','/admin/users',0,'2026-04-19 19:36:21'),(9,'α╕íα╕╡α╕£α╕╣α╣ëα╕¬α╕íα╕▒α╕äα╕úα╕¬α╕íα╕▓α╕èα╕┤α╕üα╣âα╕½α╕íα╣ê: testuser','user','/admin/users',0,'2026-04-20 12:40:34'),(10,'α╕íα╕╡α╕üα╕▓α╕úα╕¬α╕úα╣ëα╕▓α╕çα╣Çα╕úα╕ïα╕╣α╣Çα╕íα╣êα╣âα╕½α╕íα╣ê: John Doe Resume','resume','/admin/resumes/fed31507-fdfe-4bcc-b9f9-ff2d5160faac',0,'2026-04-20 12:41:58'),(11,'α╕íα╕╡α╕üα╕▓α╕úα╕¬α╕úα╣ëα╕▓α╕çα╣Çα╕úα╕ïα╕╣α╣Çα╕íα╣êα╣âα╕½α╕íα╣ê: Waranon Resume','resume','/admin/resumes/7e899a0e-be87-4c2b-b64d-5f22f53e987a',0,'2026-04-20 15:30:19'),(12,'α╕íα╕╡α╕£α╕╣α╣ëα╕¬α╕íα╕▒α╕äα╕úα╕¬α╕íα╕▓α╕èα╕┤α╕üα╣âα╕½α╕íα╣ê: ABC','user','/admin/users',0,'2026-04-20 16:53:10'),(13,'α╕íα╕╡α╕üα╕▓α╕úα╕¬α╕úα╣ëα╕▓α╕çα╣Çα╕úα╕ïα╕╣α╣Çα╕íα╣êα╣âα╕½α╕íα╣ê: Pie Resume','resume','/admin/resumes/f5e3d8cb-24e0-44e9-9579-f2045833a64c',0,'2026-04-20 16:55:31'),(14,'α╕íα╕╡α╕üα╕▓α╕úα╕¬α╕úα╣ëα╕▓α╕çα╣Çα╕úα╕ïα╕╣α╣Çα╕íα╣êα╣âα╕½α╕íα╣ê: PIpe Resume','resume','/admin/resumes/c5315bf2-4869-45fc-b4bd-fe95366689fa',0,'2026-04-20 16:55:56'),(15,'α╕íα╕╡α╕£α╕╣α╣ëα╕¬α╕íα╕▒α╕äα╕úα╕¬α╕íα╕▓α╕èα╕┤α╕üα╣âα╕½α╕íα╣ê: Pipe','user','/admin/users',0,'2026-04-20 17:55:17'),(16,'α╕íα╕╡α╕üα╕▓α╕úα╕¬α╕úα╣ëα╕▓α╕çα╣Çα╕úα╕ïα╕╣α╣Çα╕íα╣êα╣âα╕½α╕íα╣ê: Somporn Resume','resume','/admin/resumes/f2ea4125-04c2-42e3-b783-c6cc6a5fbe03',0,'2026-04-20 17:56:58'),(17,'α╕íα╕╡α╕£α╕╣α╣ëα╕¬α╕íα╕▒α╕äα╕úα╕¬α╕íα╕▓α╕èα╕┤α╕üα╣âα╕½α╕íα╣ê: Priest','user','/admin/users',0,'2026-04-20 17:58:26'),(18,'α╕íα╕╡α╕üα╕▓α╕úα╕¬α╕úα╣ëα╕▓α╕çα╣Çα╕úα╕ïα╕╣α╣Çα╕íα╣êα╣âα╕½α╕íα╣ê: Jukraporn Resume','resume','/admin/resumes/dc596a9e-1a42-41ea-b0b0-9fccb118dd75',0,'2026-04-20 18:00:00'),(19,'α╕íα╕╡α╕£α╕╣α╣ëα╕¬α╕íα╕▒α╕äα╕úα╕¬α╕íα╕▓α╕èα╕┤α╕üα╣âα╕½α╕íα╣ê: Pol','user','/admin/users',0,'2026-04-20 18:01:12'),(20,'α╕íα╕╡α╕üα╕▓α╕úα╕¬α╕úα╣ëα╕▓α╕çα╣Çα╕úα╕ïα╕╣α╣Çα╕íα╣êα╣âα╕½α╕íα╣ê: AAA Resume','resume','/admin/resumes/45083191-7577-4ba3-841d-6cb9ec31586f',0,'2026-04-20 18:01:30'),(21,'α╕íα╕╡α╕üα╕▓α╕úα╕¬α╕úα╣ëα╕▓α╕çα╣Çα╕úα╕ïα╕╣α╣Çα╕íα╣êα╣âα╕½α╕íα╣ê: BBB Resume','resume','/admin/resumes/f3ed3af9-3e2d-468a-b229-dee97e350ad7',0,'2026-04-20 18:02:21');
+/*!40000 ALTER TABLE `notifications` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `resume_content`
+--
 
 DROP TABLE IF EXISTS `resume_content`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `resume_content` (
   `resume_id` varchar(50) NOT NULL,
   `config` json DEFAULT NULL,
@@ -19,13 +74,25 @@ CREATE TABLE `resume_content` (
   PRIMARY KEY (`resume_id`),
   CONSTRAINT `resume_content_ibfk_1` FOREIGN KEY (`resume_id`) REFERENCES `resumes` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-INSERT INTO `resume_content` (`resume_id`, `config`, `personal`, `education`, `experience`, `summary`, `skills`, `languages`, `certifications`, `projects`, `created_at`, `updated_at`) VALUES
-('2e30877d-6196-4b79-8b8e-4e4cc227baba', '{"template":"classic"}', '{"email":"somchai@email.com","phone":"089-123-4567","github":"","address":"Bangkok, Thailand","jobTitle":"Senior Software Engineer","lastName":"WIRIYAKUL","linkedin":"","firstName":"NATTHAPONG","portfolio":"","profilePic":"","dateOfBirth":"","nationality":""}', '[{"id":"7817ad34-f096-4381-b974-7163a3464ad9","gpa":"3.45","field":"Computer Science","degree":"Bachelor of Science","gradYear":"2020","location":"","startYear":"2016","activities":"","institution":"Chulalongkorn University"}]', '[{"id":"aedcd7d8-9311-44a9-bdeb-85fab89ec0f0","company":"","details":"","endDate":"","location":"","position":"","isCurrent":false,"startDate":""}]', '{"details":"Experienced software engineer with 5+ years of expertise in React, Node.js, and cloud technologies. Passionate about building scalable web applications."}', '{"list":"React, Next.js, TypeScript, Node.js, Express.js, PostgreSQL, MongoDB, AWS, Docker, Git, Tailwind CSS, GraphQL"}', '[{"id":"3c8c71d6-b4a5-4cc2-ba4d-39da549ee4b0","level":"Native","language":"Thai"},{"id":"4522f98f-c3cf-423f-b93b-bf35b358d7b8","level":"Professional","language":"English"}]', '[]', '[]', '2026-04-18 11:44:42', '2026-04-18 11:48:50'),
-('8bd0e0e8-ab4f-4ce9-a27a-899fd5a13e04', '{"template":"classic"}', '{"email":"natthapong.w@gmail.com","phone":"092-345-6789","github":"","address":"Bangkok, Thailand","jobTitle":"Full-Stack Developer","lastName":"Wiriyakul","linkedin":"","firstName":"Natthapong","portfolio":"","profilePic":"","dateOfBirth":"","nationality":"Thai"}', '[{"id":"46798eaa-507a-4e65-bc0f-3ba65dc54cba","gpa":"","field":"","degree":"","gradYear":"","location":"","startYear":"","activities":"","institution":""}]', '[{"id":"070b252c-75b4-42d7-a708-5e61787e2564","company":"TechVision Co., Ltd.","details":"- Led a team of 5 developers to rebuild the company''s flagship product using Next.js and TypeScript\n- Implemented CI/CD pipeline reducing deployment time by 60%\n- Optimized application performance achieving 95+ Lighthouse score\n- Mentored 3 junior developers through code reviews and pair programming","endDate":"","location":"Bangkok","position":"Senior Frontend Developer","isCurrent":true,"startDate":""}]', '{"details":"Results-driven Full-Stack Developer with 4+ years of experience building scalable web applications using React, Next.js, and Node.js. Passionate about clean code architecture, performance optimization, and delivering exceptional user experiences. Led development of e-commerce platforms serving 100K+ monthly active users."}', '{"list":""}', '[{"id":"2b995c56-d9c5-4663-80ab-75a0bff48521","level":"Professional","language":""}]', '[]', '[]', '2026-04-18 11:45:08', '2026-04-18 11:45:08');
+--
+-- Dumping data for table `resume_content`
+--
 
+LOCK TABLES `resume_content` WRITE;
+/*!40000 ALTER TABLE `resume_content` DISABLE KEYS */;
+INSERT INTO `resume_content` VALUES ('45083191-7577-4ba3-841d-6cb9ec31586f','{\"template\": \"tech_innovator\"}','{\"email\": \"bbbb\", \"phone\": \"\", \"github\": \"\", \"address\": \"\", \"jobTitle\": \"\", \"lastName\": \"\", \"linkedin\": \"\", \"firstName\": \"BBB\", \"portfolio\": \"\", \"profilePic\": \"/uploads/profile_39_1776708107964.jpg\", \"dateOfBirth\": \"\", \"nationality\": \"\"}','[{\"id\": \"3092f0e8-ebbd-45a6-b37a-26bbf25c6a30\", \"gpa\": \"\", \"field\": \"\", \"degree\": \"\", \"gradYear\": \"\", \"location\": \"\", \"startYear\": \"\", \"activities\": \"\", \"institution\": \"\"}]','[{\"id\": \"394d3be7-187a-4fc0-8981-fa3eb93e53cb\", \"company\": \"\", \"details\": \"\", \"endDate\": \"\", \"location\": \"\", \"position\": \"\", \"isCurrent\": false, \"startDate\": \"\"}]','{\"details\": \"\"}','{\"list\": \"\"}','[{\"id\": \"24f6d6e6-7ff2-4fdc-9616-bdc2d435919a\", \"level\": \"Professional\", \"language\": \"\"}]','[]','[]','2026-04-20 18:01:30','2026-04-20 18:01:49'),('dc596a9e-1a42-41ea-b0b0-9fccb118dd75','{\"template\": \"modern\"}','{\"email\": \"jukraporn@gmail.com\", \"phone\": \"\", \"github\": \"\", \"address\": \"\", \"jobTitle\": \"\", \"lastName\": \"\", \"linkedin\": \"\", \"firstName\": \"Jukraporn\", \"portfolio\": \"\", \"profilePic\": \"/uploads/profile_38_1776707964512.jpg\", \"dateOfBirth\": \"\", \"nationality\": \"\"}','[{\"id\": \"a2cbbe4e-e854-42e0-b16f-5b490915111f\", \"gpa\": \"\", \"field\": \"\", \"degree\": \"\", \"gradYear\": \"\", \"location\": \"\", \"startYear\": \"\", \"activities\": \"\", \"institution\": \"\"}]','[{\"id\": \"56021c41-284d-4d45-8929-526712c567cf\", \"company\": \"\", \"details\": \"\", \"endDate\": \"\", \"location\": \"\", \"position\": \"\", \"isCurrent\": false, \"startDate\": \"\"}]','{\"details\": \"\"}','{\"list\": \"\"}','[{\"id\": \"bfea54d1-6076-4fd7-ab43-0ae57272ccde\", \"level\": \"Professional\", \"language\": \"\"}]','[]','[]','2026-04-20 18:00:00','2026-04-20 18:00:00'),('f2ea4125-04c2-42e3-b783-c6cc6a5fbe03','{\"template\": \"classic\"}','{\"email\": \"somporn@gmail.com\", \"phone\": \"\", \"github\": \"\", \"address\": \"\", \"jobTitle\": \"\", \"lastName\": \"\", \"linkedin\": \"\", \"firstName\": \"Somporn\", \"portfolio\": \"\", \"profilePic\": \"/uploads/profile_37_1776707786797.jpg\", \"dateOfBirth\": \"\", \"nationality\": \"\"}','[{\"id\": \"507795c9-e7a6-4f68-a243-7b8263ccc916\", \"gpa\": \"\", \"field\": \"\", \"degree\": \"\", \"gradYear\": \"\", \"location\": \"\", \"startYear\": \"\", \"activities\": \"\", \"institution\": \"\"}]','[{\"id\": \"80c2facc-1b50-4a27-a075-755c8efd333c\", \"company\": \"\", \"details\": \"\", \"endDate\": \"\", \"location\": \"\", \"position\": \"\", \"isCurrent\": false, \"startDate\": \"\"}]','{\"details\": \"\"}','{\"list\": \"\"}','[{\"id\": \"0215b9dd-2d58-498f-8023-a9b81ea882fb\", \"level\": \"Professional\", \"language\": \"\"}]','[]','[]','2026-04-20 17:56:58','2026-04-20 17:56:58'),('f3ed3af9-3e2d-468a-b229-dee97e350ad7','{\"template\": \"glass_modern\"}','{\"email\": \"bbb\", \"phone\": \"\", \"github\": \"\", \"address\": \"\", \"jobTitle\": \"\", \"lastName\": \"\", \"linkedin\": \"\", \"firstName\": \"BBB\", \"portfolio\": \"\", \"profilePic\": \"/uploads/profile_39_1776708131154.jpg\", \"dateOfBirth\": \"\", \"nationality\": \"\"}','[{\"id\": \"1a150c3d-cd40-43b0-8d7c-6d0cbdf0786f\", \"gpa\": \"\", \"field\": \"\", \"degree\": \"\", \"gradYear\": \"\", \"location\": \"\", \"startYear\": \"\", \"activities\": \"\", \"institution\": \"\"}]','[{\"id\": \"8942bead-9e73-4b95-9844-4bebc7cfe109\", \"company\": \"\", \"details\": \"\", \"endDate\": \"\", \"location\": \"\", \"position\": \"\", \"isCurrent\": false, \"startDate\": \"\"}]','{\"details\": \"\"}','{\"list\": \"\"}','[{\"id\": \"f0343928-b711-45be-b542-82035e2fc406\", \"level\": \"Professional\", \"language\": \"\"}]','[]','[]','2026-04-20 18:02:21','2026-04-20 18:02:21');
+/*!40000 ALTER TABLE `resume_content` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `resumes`
+--
 
 DROP TABLE IF EXISTS `resumes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `resumes` (
   `id` varchar(50) NOT NULL,
   `user_id` int NOT NULL,
@@ -44,13 +111,25 @@ CREATE TABLE `resumes` (
   KEY `public_key_idx` (`public_key`),
   CONSTRAINT `resumes_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-INSERT INTO `resumes` (`id`, `user_id`, `title`, `template`, `status`, `views`, `downloads`, `is_public`, `public_key`, `created_at`) VALUES
-('2e30877d-6196-4b79-8b8e-4e4cc227baba', 10, 'NATTHAPONG WIRIYAKUL Resume', 'classic', 'Draft', 2, 0, 0, NULL, '2026-04-18 11:44:42'),
-('8bd0e0e8-ab4f-4ce9-a27a-899fd5a13e04', 10, 'Natthapong Wiriyakul Resume', 'classic', 'Draft', 4, 0, 1, NULL, '2026-04-18 11:45:08');
+--
+-- Dumping data for table `resumes`
+--
 
+LOCK TABLES `resumes` WRITE;
+/*!40000 ALTER TABLE `resumes` DISABLE KEYS */;
+INSERT INTO `resumes` VALUES ('45083191-7577-4ba3-841d-6cb9ec31586f',39,'BBB Resume','tech_innovator','Draft',0,0,1,'pub_903ad43e','2026-04-20 18:01:30'),('dc596a9e-1a42-41ea-b0b0-9fccb118dd75',38,'Jukraporn Resume','modern','Draft',0,0,1,'pub_459070c0','2026-04-20 18:00:00'),('f2ea4125-04c2-42e3-b783-c6cc6a5fbe03',37,'Somporn Resume','classic','Draft',3,0,1,'pub_bb3db2af','2026-04-20 17:56:58'),('f3ed3af9-3e2d-468a-b229-dee97e350ad7',39,'BBB Resume','glass_modern','Draft',0,0,0,NULL,'2026-04-20 18:02:21');
+/*!40000 ALTER TABLE `resumes` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `roles`
+--
 
 DROP TABLE IF EXISTS `roles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `roles` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
@@ -59,13 +138,49 @@ CREATE TABLE `roles` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-INSERT INTO `roles` (`id`, `name`, `description`, `created_at`) VALUES
-(1, 'User', 'Regular user with resume creation access', '2026-04-02 03:59:11'),
-(2, 'Admin', 'Administrator with full system access', '2026-04-02 03:59:11');
+--
+-- Dumping data for table `roles`
+--
 
+LOCK TABLES `roles` WRITE;
+/*!40000 ALTER TABLE `roles` DISABLE KEYS */;
+INSERT INTO `roles` VALUES (1,'User','Regular user with resume creation access','2026-04-02 03:59:11'),(2,'Admin','Administrator with full system access','2026-04-02 03:59:11');
+/*!40000 ALTER TABLE `roles` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `settings`
+--
+
+DROP TABLE IF EXISTS `settings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `settings` (
+  `setting_key` varchar(50) NOT NULL,
+  `setting_value` text,
+  PRIMARY KEY (`setting_key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `settings`
+--
+
+LOCK TABLES `settings` WRITE;
+/*!40000 ALTER TABLE `settings` DISABLE KEYS */;
+INSERT INTO `settings` VALUES ('allow_registration','true'),('contact_email','admin@smartpersona.com'),('maintenance_mode','false'),('site_description','AI Resume Generation Platform'),('site_name','');
+/*!40000 ALTER TABLE `settings` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `user_emails`
+--
 
 DROP TABLE IF EXISTS `user_emails`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `user_emails` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
@@ -76,15 +191,26 @@ CREATE TABLE `user_emails` (
   UNIQUE KEY `unique_user_email` (`user_id`,`email`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `user_emails_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-INSERT INTO `user_emails` (`id`, `user_id`, `email`, `is_primary`, `created_at`) VALUES
-(1, 8, 'pipezaza34@gmail.com', 1, '2026-04-09 04:24:33'),
-(2, 9, 'cat@gmail.com', 1, '2026-04-18 10:43:31'),
-(3, 10, 'test@example.com', 1, '2026-04-18 11:08:28');
+--
+-- Dumping data for table `user_emails`
+--
 
+LOCK TABLES `user_emails` WRITE;
+/*!40000 ALTER TABLE `user_emails` DISABLE KEYS */;
+INSERT INTO `user_emails` VALUES (5,12,'admin@gmail.com',1,'2026-04-19 15:17:59'),(28,37,'pipezaza34@gmail.com',1,'2026-04-20 17:55:17'),(29,38,'priest@gmail.com',1,'2026-04-20 17:58:26'),(30,39,'pol@gmail.com',1,'2026-04-20 18:01:12');
+/*!40000 ALTER TABLE `user_emails` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `users`
+--
 
 DROP TABLE IF EXISTS `users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `users` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
@@ -96,10 +222,27 @@ CREATE TABLE `users` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-INSERT INTO `users` (`id`, `name`, `email`, `password`, `profile_pic`, `role`, `status`, `created_at`) VALUES
-(8, 'Pipe', 'pipezaza34@gmail.com', '$2b$10$E3JmIQzwcZRm6/sW7LWigOGVXevVEni9O7mGQsXDr3HOw/n5.szwC', NULL, 'User', 'Active', '2026-04-09 04:24:33'),
-(9, 'Cat', 'cat@gmail.com', '$2b$10$UZ4VjaP2CjoIYzWLs8GgwexHqeSlZodsAufPRiF387pHJuc35vRoa', NULL, 'User', 'Active', '2026-04-18 10:43:31'),
-(10, 'testuser', 'test@example.com', '$2b$10$.yWioOv9H0RBnn8o/HyMFOR0HV/v4K5uUQvXgTVxfnfl1.Tqidtjm', NULL, 'User', 'Active', '2026-04-18 11:08:28');
+--
+-- Dumping data for table `users`
+--
 
+LOCK TABLES `users` WRITE;
+/*!40000 ALTER TABLE `users` DISABLE KEYS */;
+INSERT INTO `users` VALUES (12,'Admin','admin@gmail.com','$2b$10$lJZZsd92Hpq.GVoMX/rvaePMu52.B5fG/ePfTf2iMXDP8GNs0YHta','/uploads/profile_12_1776698811011.jpg','Admin','Active','2026-04-19 15:17:59'),(37,'Pipe','pipezaza34@gmail.com','$2b$10$ZYzYk8vRR69CAWRQ4FJK1ufs3/XKywfkzG/CBN8kiPPWxs/hyRvS2','/uploads/profile_37_1776707775314.jpg','User','Active','2026-04-20 17:55:17'),(38,'Priest','priest@gmail.com','$2b$10$AautK85yzt2E9soWHuiXHuZB1Ke3m8rGQ/lhAQQTzB0fWUdN4uOX.','/uploads/profile_38_1776707971550.jpg','User','Active','2026-04-20 17:58:26'),(39,'Pol','pol@gmail.com','$2b$10$/wm8N/.OyxKdCy6qv2yJO.2ev4wP5voECWQkBe8coDMeV31hEiMny','/uploads/profile_39_1776708157348.jpg','User','Active','2026-04-20 18:01:12');
+/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+UNLOCK TABLES;
+SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2026-04-20 18:17:45

@@ -1,6 +1,7 @@
 import pool from "@/lib/db";
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/session";
+import bcrypt from "bcryptjs";
 
 export const dynamic = "force-dynamic";
 
@@ -173,10 +174,20 @@ export async function POST(request) {
     if (!allowedStatus.includes(status))
       return NextResponse.json({ error: "Invalid status" }, { status: 400 });
 
+    const hashPassword = await bcrypt.hash("SmartPersona123!", 10);
+
     const [result] = await pool.query(
-      "INSERT INTO users (name, email, role, status) VALUES (?, ?, ?, ?)",
-      [name, email, role, status],
+      "INSERT INTO users (name, email, password, role, status) VALUES (?, ?, ?, ?, ?)",
+      [name, email, hashPassword, role, status],
     );
+
+    const userId = result.insertId;
+    if (userId) {
+      await pool.query(
+        "INSERT INTO user_emails (user_id, email, is_primary) VALUES (?, ?, ?)",
+        [userId, email, true]
+      );
+    }
 
     return NextResponse.json(
       { id: result.insertId, message: "User created successfully" },

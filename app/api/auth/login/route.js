@@ -26,16 +26,24 @@ export async function POST(request) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
-    // 5. ตรวจสอบรหัสผ่านด้วย bcrypt
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return NextResponse.json(
-        { message: "Invalid password" },
-        { status: 403 },
-      );
+    // 4.5 ✅ ตรวจสอบ Maintenance Mode — ถ้าเปิดอยู่ ให้เฉพาะ Admin ล็อกอินได้
+    if (user.role?.toLowerCase() !== "admin") {
+      try {
+        const maintenanceRows = await query(
+          "SELECT setting_value FROM settings WHERE setting_key = 'maintenance_mode'"
+        );
+        if (maintenanceRows.length > 0 && maintenanceRows[0].setting_value === "true") {
+          return NextResponse.json(
+            { message: "ระบบอยู่ในโหมดปรับปรุง ไม่สามารถเข้าสู่ระบบได้ในขณะนี้" },
+            { status: 503 },
+          );
+        }
+      } catch (e) {
+        console.error("Maintenance check in login failed:", e);
+      }
     }
 
-    // 6. ✅ ตรวจสอบสถานะบัญชีก่อนออก Token
+    // 5. ✅ ตรวจสอบสถานะบัญชีก่อนเช็ครหัสผ่าน (เพื่อแสดงข้อความที่ถูกต้อง)
     if (user.status === "Inactive") {
       return NextResponse.json(
         { message: "บัญชีนี้ถูกปิดการใช้งานชั่วคราว กรุณาติดต่อผู้ดูแลระบบ" },
@@ -45,6 +53,15 @@ export async function POST(request) {
     if (user.status === "Suspended") {
       return NextResponse.json(
         { message: "บัญชีนี้ถูกระงับการใช้งาน กรุณาติดต่อผู้ดูแลระบบ" },
+        { status: 403 },
+      );
+    }
+
+    // 6. ตรวจสอบรหัสผ่านด้วย bcrypt
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return NextResponse.json(
+        { message: "Invalid password" },
         { status: 403 },
       );
     }

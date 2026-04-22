@@ -7,7 +7,7 @@ export const THEMES = {
     // Page
     pageBg: "#ffffff",
     pageBorder: "",
-    fontFamily: "'Georgia', 'Times New Roman', serif",
+    fontFamily: "var(--font-noto-thai), var(--font-inter), sans-serif",
     // Header — deep navy (matches MiniResume classic)
     headerBg: "#1e3a8a",
     headerNameColor: "#ffffff",

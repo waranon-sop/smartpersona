@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { query } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
+import { unlink } from "fs/promises";
+import path from "path";
 
 export async function GET(request) {
   try {
@@ -59,15 +61,30 @@ export async function DELETE(request) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
+    // Get the user's profile picture to delete it from disk
+    const users = await query("SELECT profile_pic FROM users WHERE id = ?", [user.id]);
+    if (users.length > 0 && users[0].profile_pic) {
+      const picPath = users[0].profile_pic;
+      if (picPath.startsWith("/uploads/")) {
+        const filename = picPath.replace("/uploads/", "");
+        const filePath = path.join(process.cwd(), "public", "uploads", filename);
+        try {
+          await unlink(filePath);
+        } catch (e) {
+          console.warn("Could not delete old profile picture:", e.message);
+        }
+      }
+    }
+
     // Delete the user from the database. 
     // ON DELETE CASCADE will handle associated resumes, resume_content, and user_emails.
     const sql = "DELETE FROM users WHERE id = ?";
     await query(sql, [user.id]);
 
-    // Import cookies dynamically to avoid next/headers issues in edge cases if possible, 
-    // but standard import is fine for Next.js App Router API.
+    // Clear the auth cookie
     const { cookies } = await import("next/headers");
-    cookies().delete("token");
+    const cookieStore = await cookies();
+    cookieStore.delete("token");
 
     return NextResponse.json({ message: "Account deleted successfully" }, { status: 200 });
   } catch (error) {

@@ -58,19 +58,6 @@ const PersonalInfoSection = memo(({ data, updateData, uploadStatus, handleUpload
           />
         </div>
 
-        <Input 
-          label="สัญชาติ" 
-          placeholder="e.g. Thai" 
-          value={data?.nationality || ""}
-          onChange={(e) => updateData("personal", "nationality", e.target.value)} 
-        />
-
-        <Input 
-          label="วันเกิด (ไม่บังคับ)" 
-          type="date" 
-          value={data?.dateOfBirth || ""}
-          onChange={(e) => updateData("personal", "dateOfBirth", e.target.value)} 
-        />
 
         <Input 
           label="LinkedIn URL" 

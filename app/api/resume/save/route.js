@@ -2,24 +2,7 @@ import { NextResponse } from "next/server";
 import { query } from "@/lib/db";
 import { v4 as uuidv4 } from "uuid";
 import { getCurrentUser } from "@/lib/session";
-import { z } from "zod";
 import { addNotification } from "@/app/admin/actions/notificationActions";
-
-// ตรวจสอบความถูกต้องและประเภทข้อมูลด้วย Zod
-const BaseInfoSchema = z.record(z.any()).nullable().optional();
-const ArraySchema = z.array(z.any()).nullable().optional().default([]);
-
-const ResumeDataSchema = z.object({
-  config: BaseInfoSchema,
-  personal: BaseInfoSchema,
-  summary: BaseInfoSchema,
-  skills: BaseInfoSchema,
-  educations: ArraySchema,
-  experiences: ArraySchema,
-  languages: ArraySchema,
-  certifications: ArraySchema,
-  projects: ArraySchema,
-});
 
 // POST /api/resume/save — บันทึก resume ใหม่ หรืออัปเดตถ้ามี resume_id แล้ว
 export async function POST(request) {
@@ -33,25 +16,7 @@ export async function POST(request) {
     const body = await request.json();
     const { resumeId, data } = body; // data is the context object
 
-    // Validation using Zod
-    let parsedData;
-    try {
-      parsedData = ResumeDataSchema.parse({
-        config: data.config,
-        personal: data.personal,
-        summary: data.summary,
-        skills: data.skills,
-        educations: data.educations,
-        experiences: data.experiences,
-        languages: data.languages,
-        certifications: data.certifications,
-        projects: data.projects,
-      });
-    } catch (validationError) {
-      return NextResponse.json({ message: "Invalid data format", errors: validationError.errors }, { status: 400 });
-    }
-
-    const { config, personal, educations, experiences, summary, skills, languages, certifications, projects } = parsedData;
+    const { config, personal, educations, experiences, summary, skills, languages, certifications, projects } = data;
     const template = config?.template || "classic";
     const title = personal?.firstName
       ? `${personal.firstName} ${personal.lastName || ""}`.trim() + " Resume"
@@ -123,7 +88,11 @@ export async function POST(request) {
       );
     }
   } catch (error) {
-    console.error("Save Resume Error:", error);
-    return NextResponse.json({ message: "Server Error" }, { status: 500 });
+    console.error("Save Resume Error Detailed:", {
+      message: error.message,
+      stack: error.stack,
+      userId: userId
+    });
+    return NextResponse.json({ message: "Server Error", detail: error.message }, { status: 500 });
   }
 }

@@ -72,3 +72,17 @@ export async function markAllAsRead() {
     return { success: false };
   }
 }
+
+/**
+ * Deletes a single notification by ID.
+ */
+export async function deleteNotification(id) {
+  try {
+    await pool.query("DELETE FROM notifications WHERE id = ?", [id]);
+    revalidatePath("/admin", "layout");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to delete notification:", error);
+    return { success: false };
+  }
+}

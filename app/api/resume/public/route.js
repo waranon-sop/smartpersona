@@ -3,12 +3,6 @@ import { query } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 
 export async function GET(request) {
-  const user = await getCurrentUser();
-  
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized: Please login to view this resume" }, { status: 401 });
-  }
-
   try {
     const { searchParams } = new URL(request.url);
     const resumeId = searchParams.get("id");
@@ -17,34 +11,49 @@ export async function GET(request) {
       return NextResponse.json({ message: "Resume ID is required" }, { status: 400 });
     }
 
-    // ดึงข้อมูล Resume โดยไม่ต้องกรองด้วย user_id เพราะเป็นลิงก์แบบ Public
+    // ดึงข้อมูล Resume เฉพาะที่เป็น Public เท่านั้น (พร้อมเช็ค user_id เพื่อใช้กรองการนับ view)
     const sql = `
-      SELECT r.id, r.title, r.template, 
-             c.config, c.personal, c.education, c.experience, c.summary, c.skills
+      SELECT r.id, r.user_id, r.title, r.template, 
+             c.config, c.personal, c.education, c.experience, c.summary, c.skills,
+             c.languages, c.certifications, c.projects
       FROM resumes r
       LEFT JOIN resume_content c ON r.id = c.resume_id
-      WHERE r.id = ?
+      WHERE r.id = ? AND r.is_public = 1
     `;
     const results = await query(sql, [resumeId]);
 
     if (results.length === 0) {
-      return NextResponse.json({ message: "Resume not found" }, { status: 404 });
+      return NextResponse.json({ message: "Resume not found or not public" }, { status: 404 });
     }
 
     const row = results[0];
+    const user = await getCurrentUser();
     
-    // แปลง JSON string เป็น Object ตามที่ออกแบบไว้
+    // Increment view count ONLY if the visitor is NOT the owner
+    // This makes stats much more "สมเหตุสมผล"
+    if (!user || user.id !== row.user_id) {
+      await query("UPDATE resumes SET views = views + 1 WHERE id = ?", [resumeId]);
+    }
+
+    // แปลง JSON string เป็น Object — ใช้ helper เดียวกับ load route
+    const parseField = (raw, fallback) =>
+      raw ? (typeof raw === "string" ? JSON.parse(raw) : raw) : fallback;
+
+    const rawEducation  = parseField(row.education,  null);
+    const rawExperience = parseField(row.experience, null);
+
     const data = {
-      config: typeof row.config === "string" ? JSON.parse(row.config) : row.config || { template: row.template || "classic" },
-      personal: typeof row.personal === "string" ? JSON.parse(row.personal) : row.personal || {},
-      education: typeof row.education === "string" ? JSON.parse(row.education) : row.education || null,
-      experience: typeof row.experience === "string" ? JSON.parse(row.experience) : row.experience || null,
-      experiences: typeof row.experience === "string" ? JSON.parse(row.experience) : row.experiences || null, 
-      summary: typeof row.summary === "string" ? JSON.parse(row.summary) : row.summary || {},
-      skills: typeof row.skills === "string" ? JSON.parse(row.skills) : row.skills || {}
+      config:         parseField(row.config, { template: row.template || "classic" }),
+      personal:       parseField(row.personal, {}),
+      educations:     Array.isArray(rawEducation)  ? rawEducation  : rawEducation  ? [rawEducation]  : [],
+      experiences:    Array.isArray(rawExperience) ? rawExperience : rawExperience ? [rawExperience] : [],
+      summary:        parseField(row.summary, {}),
+      skills:         parseField(row.skills, {}),
+      languages:      parseField(row.languages, []),
+      certifications: parseField(row.certifications, []),
+      projects:       parseField(row.projects, []),
     };
 
-    // ส่ง data เปล่าๆ ออกมา เพื่อให้พร้อมใช้วาดในหน้าบ้าน
     return NextResponse.json({ data, resumeId: row.id, title: row.title }, { status: 200 });
   } catch (error) {
     console.error("Public Resume Load Error:", error);
